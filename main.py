@@ -2,39 +2,60 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from openai import OpenAI
 import os
-from kaggle.api.kaggle_api_extended import KaggleApi
 from dotenv import load_dotenv
 import re
+import requests
+from datetime import datetime
+
 
 load_dotenv()
 client = OpenAI(
     api_key=os.environ.get("OPENAI_API_KEY"),
 )
-kaggle_api = KaggleApi()
-# tryingggc omiitt
-def get_dataset_suggestions(client, prompt):
+
+def get_trip_suggestions(client, prompt):
     chat_completion = client.chat.completions.create(
         messages=[
             {
                 "role": "user",
-                "content": prompt + ". which dataset should I use for this project? i want to search for a dataset "
-                                    "that is relevant to my project, please help me to create search queries so i "
-                                    "will find in websites the best fitting datasets for this project. just write the search queries and nothing else.",
+                "content": prompt + ". this is all the data that i have gathered so far about the trip im planning. "
+                                    "please help me to create a detailed plan for the trip based on this data.",
             }
         ],
         model="gpt-3.5-turbo"
     )
     return chat_completion.choices[0].message.content
 
-def search_kaggle_datasets(search_term):
-    api = KaggleApi()
-    api.authenticate()
-    search_results = api.dataset_list(search=search_term)
-    print(search_results)
-    return [{"title": dataset.title, "url": f'https://www.kaggle.com/{dataset.ref}'} for dataset in search_results]
+def flight(origin,destination, start_date, end_date):
+    #call the Amadeus flight api
+    URL = "https://test.api.amadeus.com/v1/shopping/flight-destination"
+    AMADEUS = os.environ.get("AMADEUS_API_KEY")
+    HEADERS = {
+        "Authorization": "Bearer " + AMADEUS,
+        "Content-Type": "application/json"
+    }
+    PARAMS = {
+        "originLocationCode": origin,
+        "destinationLocationCode": destination,
+        "departureDate": start_date,
+        "returnDate": end_date,
+        "adults": 1
+    }
+    response = requests.get(url=URL, headers=HEADERS, params=PARAMS)
+    data = response.json()
+    return data
 
-
-
+#accsess the data from the user and asks all our apis for data. then returns a string with all the data
+def gather_data(trip):
+    origin = trip.origin
+    destination = trip.destination
+    budget = trip.budget
+    duration = trip.duration
+    start_date = trip.start_date
+    end_date = trip.end_date
+    flight_data = flight(origin,destination, start_date, end_date)
+    data = f"origin: {origin}, destination: {destination}, budget: {budget}, duration: {duration}, start_date: {start_date}, end_date: {end_date}, flight_data: {flight_data}"
+    return data
 app = FastAPI()
 
 
@@ -43,23 +64,18 @@ def read_root():
     return {"Hello": "World"}
 
 
-class ProjectDescription(BaseModel):
-    description: str
+class TripDescription(BaseModel):
+    origin: str
+    destination: str
+    budget: int
+    duration: int
+    start_date: str
+    end_date: str
 
 
-@app.post("/find-dataset/")
-async def find_dataset(project: ProjectDescription):
-    suggestions = get_dataset_suggestions(client, project.description)
-    # Use regex to find all occurrences of text within double quotes
-    matched_suggestions = re.findall(r'"([^"]*)"', suggestions)
-
-    # Take the first 2 matched suggestions if they exist
-    top2suggestions = matched_suggestions[:2]
-
-    print(top2suggestions)  # Debugging: Print matched suggestions to verify
-
-    kaggle_results = []
-    for suggestion in top2suggestions:
-        # Search Kaggle datasets with the matched suggestion
-        kaggle_results.extend(search_kaggle_datasets(suggestion))
-    return {"Kaggle Results": kaggle_results}
+@app.post("/plan-trip/")
+async def get_trip_plan(trip: TripDescription):
+    data = gather_data(trip)
+    print(data)
+    trip_plan = get_trip_suggestions(client, data)
+    return {"Trip Plan": trip_plan}
