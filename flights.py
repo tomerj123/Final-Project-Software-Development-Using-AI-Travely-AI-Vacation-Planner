@@ -1,34 +1,33 @@
-#before running the program do the following:
+# before running the program do the following:
 # Install libraries:
 # pip install playwright selectolax
 # Install the required browser (paste in the terminal):
 # playwright install chromium
 
-from playwright.sync_api import sync_playwright
 from selectolax.lexbor import LexborHTMLParser
 import json, time
+from playwright.async_api import async_playwright
 
-
-def get_page(playwright, from_place, to_place, departure_date, return_date):
-    page = playwright.chromium.launch(headless=False).new_page()
-    page.goto('https://www.google.com/travel/flights?hl=en-US&curr=USD')
+async def get_page(playwright, from_place, to_place, departure_date, return_date):
+    browser = await playwright.chromium.launch(headless=False)
+    page = await browser.new_page()
+    await page.goto('https://www.google.com/travel/flights?hl=en-US&curr=USD')
 
     # type "From"
-    from_place_field = page.query_selector_all('.e5F5td')[0]
-    from_place_field.click()
+    from_place_field = (await page.query_selector_all('.e5F5td'))[0]
+    await from_place_field.click()
     time.sleep(1)
-    from_place_field.type(from_place)
+    await from_place_field.type(from_place)
     time.sleep(1)
-    page.keyboard.press('Enter')
+    await page.keyboard.press('Enter')
 
     # type "To"
-    to_place_field = page.query_selector_all('.e5F5td')[1]
-    to_place_field.click()
+    to_place_field = (await page.query_selector_all('.e5F5td'))[1]
+    await to_place_field.click()
     time.sleep(1)
-    to_place_field.type(to_place)
+    await to_place_field.type(to_place)
     time.sleep(1)
-    page.keyboard.press('Enter')
-
+    await page.keyboard.press('Enter')
 
     # page.keyboard.press('Tab')
     # # type "Departure date"
@@ -40,13 +39,13 @@ def get_page(playwright, from_place, to_place, departure_date, return_date):
     # page.query_selector('.WXaAwc .VfPpkd-LgbsSe').click()
     # time.sleep(1)
 
-    page.keyboard.press('Tab')  # Moves focus to the "Departure date" field
+    await page.keyboard.press('Tab')  # Moves focus to the "Departure date" field
     time.sleep(1)  # Wait for the focus transition
 
-    page.keyboard.type(departure_date)  # Type the departure date
+    await page.keyboard.type(departure_date)  # Type the departure date
     time.sleep(1)  # Wait for the date to be inputted
 
-    page.keyboard.press('Enter')  # Confirm the date
+    await page.keyboard.press('Enter')  # Confirm the date
     time.sleep(1)  # Wait for the calendar widget to close or the page to update
 
     # # type "Return date"
@@ -58,16 +57,16 @@ def get_page(playwright, from_place, to_place, departure_date, return_date):
     # page.query_selector('.WXaAwc .VfPpkd-LgbsSe').click()
     # time.sleep(1)
 
-    page.keyboard.press('Tab')  # Moves focus to the "Departure date" field
+    await page.keyboard.press('Tab')  # Moves focus to the "Departure date" field
     time.sleep(1)  # Wait for the focus transition
 
-    page.keyboard.type(return_date)  # Type the departure date
+    await page.keyboard.type(return_date)  # Type the departure date
     time.sleep(1)  # Wait for the date to be inputted
 
-    page.keyboard.press('Tab')  # Confirm the date
+    await page.keyboard.press('Tab')  # Confirm the date
     time.sleep(1)  # Wait for the calendar widget to close or the page to update
 
-    page.keyboard.press('Enter')  # Confirm the date
+    await page.keyboard.press('Enter')  # Confirm the date
     time.sleep(5)  # Wait for the calendar widget to close or the page to update
 
     # # press "Explore"
@@ -78,8 +77,9 @@ def get_page(playwright, from_place, to_place, departure_date, return_date):
     # page.query_selector('.zISZ5c button').click()
     # time.sleep(2)
 
-    parser = LexborHTMLParser(page.content())
-    page.close()
+    parser = LexborHTMLParser(await page.content())
+    await page.close()
+    await browser.close()
 
     return parser
 
@@ -133,19 +133,9 @@ def scrape_google_flights(parser):
     return data
 
 
-def run(playwright):
-    #here we will change the parameters to get the data from the user
-    #this is just for a test
-    from_place = 'Israel'
-    to_place = 'Paris'
-    departure_date = '4-23-2024'
-    return_date = '4-30-2024'
+async def run(playwright, from_place, to_place, departure_date, return_date):
+    async with async_playwright() as playwright:
+        parser = await get_page(playwright, from_place, to_place, departure_date, return_date)
+        google_flights_results = scrape_google_flights(parser)
+    return json.dumps(google_flights_results, indent=2, ensure_ascii=False)
 
-    parser = get_page(playwright, from_place, to_place, departure_date, return_date)
-    google_flights_results = scrape_google_flights(parser)
-
-    print(json.dumps(google_flights_results, indent=2, ensure_ascii=False))
-
-
-with sync_playwright() as playwright:
-    run(playwright)

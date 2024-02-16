@@ -1,17 +1,21 @@
+import asyncio
+
 from fastapi import FastAPI, HTTPException
+from playwright.async_api import async_playwright
 from pydantic import BaseModel
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
-import re
-import requests
-from datetime import datetime
-
+from flights import run
+from playwright.sync_api import sync_playwright
 
 load_dotenv()
+
+
 client = OpenAI(
     api_key=os.environ.get("OPENAI_API_KEY"),
 )
+
 
 def get_trip_suggestions(client, prompt):
     chat_completion = client.chat.completions.create(
@@ -26,36 +30,50 @@ def get_trip_suggestions(client, prompt):
     )
     return chat_completion.choices[0].message.content
 
-def flight(origin,destination, start_date, end_date):
-    #call the Amadeus flight api
-    URL = "https://test.api.amadeus.com/v1/shopping/flight-destination"
-    AMADEUS = os.environ.get("AMADEUS_API_KEY")
-    HEADERS = {
-        "Authorization": "Bearer " + AMADEUS,
-        "Content-Type": "application/json"
-    }
-    PARAMS = {
-        "originLocationCode": origin,
-        "destinationLocationCode": destination,
-        "departureDate": start_date,
-        "returnDate": end_date,
-        "adults": 1
-    }
-    response = requests.get(url=URL, headers=HEADERS, params=PARAMS)
-    data = response.json()
-    return data
 
-#accsess the data from the user and asks all our apis for data. then returns a string with all the data
-def gather_data(trip):
-    origin = trip.origin
-    destination = trip.destination
-    budget = trip.budget
-    duration = trip.duration
-    start_date = trip.start_date
-    end_date = trip.end_date
-    flight_data = flight(origin,destination, start_date, end_date)
-    data = f"origin: {origin}, destination: {destination}, budget: {budget}, duration: {duration}, start_date: {start_date}, end_date: {end_date}, flight_data: {flight_data}"
-    return data
+async def get_flights_info(origin, destination, departure_date, return_date, max_price):
+    async with async_playwright() as playwright:
+        google_flights_results = await run(playwright, origin, destination, departure_date, return_date)
+
+    return google_flights_results
+
+
+def get_accommodation_info(destination, start_date, end_date):
+    # Placeholder for an accommodation API call
+    # Replace with actual API integration
+    return f"Accommodations in {destination} arranged from {start_date} to {end_date}."
+
+def get_activities_info(destination, start_date, end_date):
+    # Placeholder for an activities information API call
+    # Replace with actual API integration
+    return f"Activities in {destination} planned from {start_date} to {end_date}."
+
+
+class TripDescription(BaseModel):
+    origin: str
+    destination: str
+    budget: int
+    start_date: str
+    end_date: str
+
+
+async def gather_data(trip: TripDescription):
+    flights_info = await get_flights_info(trip.origin, trip.destination, trip.start_date, trip.end_date, trip.budget)
+    print(flights_info)
+    accommodation_info = get_accommodation_info(trip.destination, trip.start_date, trip.end_date)
+    activities_info = get_activities_info(trip.destination, trip.start_date, trip.end_date)
+
+    data = f"""
+    Destination: {trip.destination}
+    Budget: {trip.budget}
+    Dates: From {trip.start_date} to {trip.end_date}
+    Flights Info: {flights_info}
+    Accommodation Info: {accommodation_info}
+    Activities Info: {activities_info}
+    """
+    return data.strip()
+
+
 app = FastAPI()
 
 
@@ -64,18 +82,9 @@ def read_root():
     return {"Hello": "World"}
 
 
-class TripDescription(BaseModel):
-    origin: str
-    destination: str
-    budget: int
-    duration: int
-    start_date: str
-    end_date: str
-
-
 @app.post("/plan-trip/")
 async def get_trip_plan(trip: TripDescription):
-    data = gather_data(trip)
-    print(data)
-    trip_plan = get_trip_suggestions(client, data)
-    return {"Trip Plan": trip_plan}
+    data = await gather_data(trip)
+    #print(data)
+    #trip_plan = get_trip_suggestions(client, data)
+    return {"Trip Plan": data}
