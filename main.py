@@ -7,7 +7,7 @@ import re
 import requests
 from datetime import datetime
 
-
+app = FastAPI()
 load_dotenv()
 client = OpenAI(
     api_key=os.environ.get("OPENAI_API_KEY"),
@@ -56,7 +56,7 @@ def gather_data(trip):
     flight_data = flight(origin,destination, start_date, end_date)
     data = f"origin: {origin}, destination: {destination}, budget: {budget}, duration: {duration}, start_date: {start_date}, end_date: {end_date}, flight_data: {flight_data}"
     return data
-app = FastAPI()
+
 
 
 @app.get("/")

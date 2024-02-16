@@ -1,0 +1,78 @@
+Index: main.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from fastapi import FastAPI, HTTPException\r\nfrom pydantic import BaseModel\r\nfrom openai import OpenAI\r\nimport os\r\nfrom kaggle.api.kaggle_api_extended import KaggleApi\r\nfrom dotenv import load_dotenv\r\nimport re\r\n\r\nload_dotenv()\r\nclient = OpenAI(\r\n    api_key=os.environ.get(\"OPENAI_API_KEY\"),\r\n)\r\nkaggle_api = KaggleApi()\r\n# tryingggc omiitt\r\ndef get_dataset_suggestions(client, prompt):\r\n    chat_completion = client.chat.completions.create(\r\n        messages=[\r\n            {\r\n                \"role\": \"user\",\r\n                \"content\": prompt + \". which dataset should I use for this project? i want to search for a dataset \"\r\n                                    \"that is relevant to my project, please help me to create search queries so i \"\r\n                                    \"will find in websites the best fitting datasets for this project. just write the search queries and nothing else.\",\r\n            }\r\n        ],\r\n        model=\"gpt-3.5-turbo\"\r\n    )\r\n    return chat_completion.choices[0].message.content\r\n\r\ndef search_kaggle_datasets(search_term):\r\n    api = KaggleApi()\r\n    api.authenticate()\r\n    search_results = api.dataset_list(search=search_term)\r\n    print(search_results)\r\n    return [{\"title\": dataset.title, \"url\": f'https://www.kaggle.com/{dataset.ref}'} for dataset in search_results]\r\n\r\n\r\n\r\napp = FastAPI()\r\n\r\n\r\n@app.get(\"/\")\r\ndef read_root():\r\n    return {\"Hello\": \"World\"}\r\n\r\n\r\nclass ProjectDescription(BaseModel):\r\n    description: str\r\n\r\n\r\n@app.post(\"/find-dataset/\")\r\nasync def find_dataset(project: ProjectDescription):\r\n    suggestions = get_dataset_suggestions(client, project.description)\r\n    # Use regex to find all occurrences of text within double quotes\r\n    matched_suggestions = re.findall(r'\"([^\"]*)\"', suggestions)\r\n\r\n    # Take the first 2 matched suggestions if they exist\r\n    top2suggestions = matched_suggestions[:2]\r\n\r\n    print(top2suggestions)  # Debugging: Print matched suggestions to verify\r\n\r\n    kaggle_results = []\r\n    for suggestion in top2suggestions:\r\n        # Search Kaggle datasets with the matched suggestion\r\n        kaggle_results.extend(search_kaggle_datasets(suggestion))\r\n    return {\"Kaggle Results\": kaggle_results}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/main.py b/main.py
+--- a/main.py	
++++ b/main.py	
+@@ -2,40 +2,20 @@
+ from pydantic import BaseModel
+ from openai import OpenAI
+ import os
+-from kaggle.api.kaggle_api_extended import KaggleApi
+ from dotenv import load_dotenv
+ import re
+ 
++app = FastAPI()
+ load_dotenv()
+ client = OpenAI(
+     api_key=os.environ.get("OPENAI_API_KEY"),
+ )
+-kaggle_api = KaggleApi()
+-# tryingggc omiitt
+-def get_dataset_suggestions(client, prompt):
+-    chat_completion = client.chat.completions.create(
+-        messages=[
+-            {
+-                "role": "user",
+-                "content": prompt + ". which dataset should I use for this project? i want to search for a dataset "
+-                                    "that is relevant to my project, please help me to create search queries so i "
+-                                    "will find in websites the best fitting datasets for this project. just write the search queries and nothing else.",
+-            }
+-        ],
+-        model="gpt-3.5-turbo"
+-    )
+-    return chat_completion.choices[0].message.content
++
+ 
+-def search_kaggle_datasets(search_term):
+-    api = KaggleApi()
+-    api.authenticate()
+-    search_results = api.dataset_list(search=search_term)
+-    print(search_results)
+-    return [{"title": dataset.title, "url": f'https://www.kaggle.com/{dataset.ref}'} for dataset in search_results]
+ 
+ 
+ 
+-app = FastAPI()
++
+ 
+ 
+ @app.get("/")
+@@ -43,23 +23,7 @@
+     return {"Hello": "World"}
+ 
+ 
+-class ProjectDescription(BaseModel):
+-    description: str
+ 
+ 
+-@app.post("/find-dataset/")
+-async def find_dataset(project: ProjectDescription):
+-    suggestions = get_dataset_suggestions(client, project.description)
+-    # Use regex to find all occurrences of text within double quotes
+-    matched_suggestions = re.findall(r'"([^"]*)"', suggestions)
+ 
+-    # Take the first 2 matched suggestions if they exist
+-    top2suggestions = matched_suggestions[:2]
+ 
+-    print(top2suggestions)  # Debugging: Print matched suggestions to verify
+-
+-    kaggle_results = []
+-    for suggestion in top2suggestions:
+-        # Search Kaggle datasets with the matched suggestion
+-        kaggle_results.extend(search_kaggle_datasets(suggestion))
+-    return {"Kaggle Results": kaggle_results}
