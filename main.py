@@ -2,16 +2,18 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from openai import OpenAI
 import os
+from dotenv import load_dotenv
 import re
 import requests
 from datetime import datetime
-from dotenv import load_dotenv
 
-app = FastAPI()
 load_dotenv()
 client = OpenAI(
     api_key=os.environ.get("OPENAI_API_KEY"),
+    organization=os.environ.get("ORGANIZATION")
 )
+hotel_api_key = os.environ.get("HOTEL_API_KEY")
+
 
 def get_trip_suggestions(client, prompt):
     chat_completion = client.chat.completions.create(
@@ -26,8 +28,9 @@ def get_trip_suggestions(client, prompt):
     )
     return chat_completion.choices[0].message.content
 
-def flight(origin,destination, start_date, end_date):
-    #call the Amadeus flight api
+
+def flight(origin, destination, start_date, end_date):
+    # call the Amadeus flight api
     URL = "https://test.api.amadeus.com/v1/shopping/flight-destination"
     AMADEUS = os.environ.get("AMADEUS_API_KEY")
     HEADERS = {
@@ -45,7 +48,8 @@ def flight(origin,destination, start_date, end_date):
     data = response.json()
     return data
 
-#accsess the data from the user and asks all our apis for data. then returns a string with all the data
+
+# accsess the data from the user and asks all our apis for data. then returns a string with all the data
 def gather_data(trip):
     origin = trip.origin
     destination = trip.destination
@@ -53,10 +57,12 @@ def gather_data(trip):
     duration = trip.duration
     start_date = trip.start_date
     end_date = trip.end_date
-    flight_data = flight(origin,destination, start_date, end_date)
+    flight_data = flight(origin, destination, start_date, end_date)
     data = f"origin: {origin}, destination: {destination}, budget: {budget}, duration: {duration}, start_date: {start_date}, end_date: {end_date}, flight_data: {flight_data}"
     return data
 
+
+app = FastAPI()
 
 
 @app.get("/")
