@@ -1,4 +1,5 @@
 import asyncio
+import webbrowser
 
 from fastapi import FastAPI, HTTPException
 from playwright.async_api import async_playwright
@@ -8,6 +9,8 @@ import os
 from dotenv import load_dotenv
 from flights import run
 from playwright.sync_api import sync_playwright
+from fastapi.responses import HTMLResponse
+
 
 load_dotenv()
 
@@ -59,7 +62,7 @@ class TripDescription(BaseModel):
 
 async def gather_data(trip: TripDescription):
     flights_info = await get_flights_info(trip.origin, trip.destination, trip.start_date, trip.end_date, trip.budget)
-    print(flights_info)
+    #print(flights_info)
     accommodation_info = get_accommodation_info(trip.destination, trip.start_date, trip.end_date)
     activities_info = get_activities_info(trip.destination, trip.start_date, trip.end_date)
 
@@ -82,9 +85,64 @@ def read_root():
     return {"Hello": "World"}
 
 
-@app.post("/plan-trip/")
+@app.post("/plan-trip/", response_class=HTMLResponse)
 async def get_trip_plan(trip: TripDescription):
     data = await gather_data(trip)
-    #print(data)
-    #trip_plan = get_trip_suggestions(client, data)
-    return {"Trip Plan": data}
+    trip_plan = get_trip_suggestions(client, data)  # This returns the trip plan as a string
+    trip_plan_html = trip_plan.replace("\n", "<br>")
+
+    # Insert trip_plan string into the HTML content
+    html_content = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Trip Plan</title>
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <!-- Font Awesome Icons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+        <style>
+            body {{ padding-top: 20px; }}
+            .container {{ max-width: 800px; }}
+            .icon {{ padding-right: 5px; }}
+        </style>
+    </head>
+    <body>
+            <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Destination</h5>
+                <p class="card-text">{trip.destination}</p>
+
+                <h5 class="card-title">Budget</h5>
+                <p class="card-text">{trip.budget}</p>
+                
+                <h5 class="card-title>Start Date</h5>
+                <p class="card-text">{trip.start_date}</p>
+                
+                <h5 class="card-title>End Date</h5>
+                <p class="card-text">{trip.end_date}</p>
+                
+            </div>
+            </div>
+    
+    <div class="container">
+        <div class="jumbotron text-center">
+            <h1 class="display-4"><i class="fas fa-map-marked-alt icon"></i>Your Trip Plan</h1>
+            <p class="lead">Here's a detailed plan for your upcoming adventure.</p>
+            <div class="trip-plan">{trip_plan_html}</div>  <!-- Display the trip plan string here -->
+        </div>
+        </div>
+
+    </div>
+</body>
+    </html>
+    """
+
+    file_path = '/Users/tomerjuster/Desktop/Final Project Software Development Using AI/trip_plan.html'  # Specify the path where you want to save the HTML file
+
+    with open(file_path, 'w') as file:
+        file.write(html_content)
+
+    return HTMLResponse(content=html_content)
