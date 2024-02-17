@@ -3,17 +3,16 @@ from pydantic import BaseModel
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
-import re
 import requests
-from datetime import datetime
+from hotel_provider import HotelProvider
 
 load_dotenv()
 client = OpenAI(
     api_key=os.environ.get("OPENAI_API_KEY"),
     organization=os.environ.get("ORGANIZATION")
 )
-hotel_api_key = os.environ.get("HOTEL_API_KEY")
-
+app = FastAPI()
+hotel_provider = HotelProvider()
 
 def get_trip_suggestions(client, prompt):
     chat_completion = client.chat.completions.create(
@@ -62,7 +61,7 @@ def gather_data(trip):
     return data
 
 
-app = FastAPI()
+
 
 
 @app.get("/")
@@ -85,3 +84,9 @@ async def get_trip_plan(trip: TripDescription):
     print(data)
     trip_plan = get_trip_suggestions(client, data)
     return {"Trip Plan": trip_plan}
+
+
+@app.get("/search-hotels-region-id/{country}")
+async def search_hotels_region_id(country: str):  # Removed 'self' parameter
+    response = await hotel_provider.search_hotels_region_id(country)
+    return response
