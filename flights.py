@@ -12,7 +12,7 @@ async def get_page(playwright, from_place, to_place, departure_date, return_date
     browser = await playwright.chromium.launch(headless=False)
     page = await browser.new_page()
     await page.goto('https://www.google.com/travel/flights?hl=en-US&curr=USD')
-
+    time.sleep(10)
     # type "From"
     from_place_field = (await page.query_selector_all('.e5F5td'))[0]
     await from_place_field.click()
@@ -29,16 +29,6 @@ async def get_page(playwright, from_place, to_place, departure_date, return_date
     time.sleep(1)
     await page.keyboard.press('Enter')
 
-    # page.keyboard.press('Tab')
-    # # type "Departure date"
-    # departure_date_field = page.query_selector_all('[jscontroller="s0nXec"] [aria-label="Departure"]')[0]
-    # #departure_date_field.click()
-    # time.sleep(1)
-    # departure_date_field.type(departure_date)
-    # time.sleep(1)
-    # page.query_selector('.WXaAwc .VfPpkd-LgbsSe').click()
-    # time.sleep(1)
-
     await page.keyboard.press('Tab')  # Moves focus to the "Departure date" field
     time.sleep(1)  # Wait for the focus transition
 
@@ -46,36 +36,20 @@ async def get_page(playwright, from_place, to_place, departure_date, return_date
     time.sleep(1)  # Wait for the date to be inputted
 
     await page.keyboard.press('Enter')  # Confirm the date
-    time.sleep(1)  # Wait for the calendar widget to close or the page to update
+    time.sleep(1)
 
-    # # type "Return date"
-    # return_date_field = page.query_selector_all('[jscontroller="pxWpE"] [aria-label="Return"]')[0]
-    # return_date_field.click()
-    # time.sleep(1)
-    # return_date_field.type(return_date)
-    # time.sleep(1)
-    # page.query_selector('.WXaAwc .VfPpkd-LgbsSe').click()
-    # time.sleep(1)
-
-    await page.keyboard.press('Tab')  # Moves focus to the "Departure date" field
+    # type "Return date"
+    await page.keyboard.press('Tab')  # Moves focus to the "Return date" field
     time.sleep(1)  # Wait for the focus transition
 
-    await page.keyboard.type(return_date)  # Type the departure date
+    await page.keyboard.type(return_date)  # Type the Return date
     time.sleep(1)  # Wait for the date to be inputted
 
     await page.keyboard.press('Tab')  # Confirm the date
     time.sleep(1)  # Wait for the calendar widget to close or the page to update
 
-    await page.keyboard.press('Enter')  # Confirm the date
-    time.sleep(5)  # Wait for the calendar widget to close or the page to update
-
-    # # press "Explore"
-    # page.query_selector('.MXvFbd .VfPpkd-LgbsSe').click()
-    # time.sleep(2)
-    #
-    # # press "More flights"
-    # page.query_selector('.zISZ5c button').click()
-    # time.sleep(2)
+    await page.keyboard.press('Enter')  # initiate a search
+    time.sleep(5)  # Wait for the search results to load
 
     parser = LexborHTMLParser(await page.content())
     await page.close()
