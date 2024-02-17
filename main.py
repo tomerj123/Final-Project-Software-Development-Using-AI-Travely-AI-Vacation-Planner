@@ -1,5 +1,3 @@
-import asyncio
-import webbrowser
 from fastapi import FastAPI, HTTPException
 from playwright.async_api import async_playwright
 from pydantic import BaseModel
@@ -9,6 +7,7 @@ from dotenv import load_dotenv
 from flights import run
 from fastapi.responses import HTMLResponse
 import httpx
+import requests
 
 
 load_dotenv()
@@ -119,11 +118,32 @@ def get_top_hotels(client, hotels_data):
     return chat_completion.choices[0].message.content
 
 
-def get_activities_info(destination, start_date, end_date):
-    # Placeholder for an activities information API call
-    # Replace with actual API integration
-    return f"Activities in {destination} planned from {start_date} to {end_date}."
+def get_activities_info(destination):
+    key = os.environ.get("TRIPADVISOR_API_KEY")
+    url = f"https://api.content.tripadvisor.com/api/v1/location/search?key={key}&searchQuery={destination}&category=attractions&language=en"
 
+    headers = {"accept": "application/json"}
+
+    response = requests.get(url, headers=headers)
+
+    return response.text
+
+async def get_event_tickets(destination, start_date, end_date):
+    seatgeek_params = {
+        "venue.city": destination,
+        "datetime_utc.gte": start_date,
+        "datetime_utc.lte": end_date,
+        "client_id": os.environ.get("SEATGEEK_CLIENT_ID")
+    }
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get("https://api.seatgeek.com/2/events", params=seatgeek_params)
+
+        if response.status_code == 200:
+            return response.json()["events"]
+        else:
+            print(f"Error: {response.text}")  # Print error message for debugging
+            raise HTTPException(status_code=response.status_code, detail=f"Failed to fetch event data from SeatGeek: {response.text}")
 
 class TripDescription(BaseModel):
     origin: str
@@ -138,7 +158,7 @@ async def gather_data(trip: TripDescription):
     #print(flights_info)
     hotels_info = await get_hotel_info(trip.destination, trip.start_date, trip.end_date)
     top_hotels = get_top_hotels(client, hotels_info)
-    activities_info = get_activities_info(trip.destination, trip.start_date, trip.end_date)
+    activities_info = get_activities_info(trip.destination)
 
     data = f"""
     Destination: {trip.destination}
