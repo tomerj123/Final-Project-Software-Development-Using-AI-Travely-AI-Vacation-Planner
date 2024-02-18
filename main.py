@@ -1,15 +1,14 @@
-import asyncio
-import webbrowser
-from fastapi import FastAPI, HTTPException
-from playwright.async_api import async_playwright
-from pydantic import BaseModel
 from openai import OpenAI
-import os
 from dotenv import load_dotenv
 from flights import run
-from fastapi.responses import HTMLResponse
 import httpx
-
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
+from pydantic import BaseModel
+import os
+import tempfile
+import asyncio
+import sys
 
 load_dotenv()
 
@@ -39,9 +38,8 @@ def get_trip_suggestions(client, prompt):
 
 
 async def get_flights_info(origin, destination, departure_date, return_date, max_price):
-    async with async_playwright() as playwright:
-        google_flights_results = await run(playwright, origin, destination, departure_date, return_date)
-
+    loop = asyncio.get_running_loop()
+    google_flights_results = await loop.run_in_executor(None, run, origin, destination, departure_date, return_date)
     return google_flights_results
 
 
@@ -54,6 +52,7 @@ async def get_hotel_info(destination, check_in_date, check_out_date):
         "api_key": os.environ.get("SERPAPI_API_KEY")
     }
 
+    print(serpapi_params)
     async with httpx.AsyncClient() as client:
         response = await client.get("https://serpapi.com/search?engine=google_hotels", params=serpapi_params)
 
@@ -161,63 +160,75 @@ def read_root():
 
 @app.post("/plan-trip/", response_class=HTMLResponse)
 async def get_trip_plan(trip: TripDescription):
-    data = await gather_data(trip)
-    #return data
-    trip_plan = get_trip_suggestions(client, data)  # This returns the trip plan as a string
-    trip_plan_html = trip_plan.replace("\n", "<br>")
+    html_content = "<h1>An error occurred while generating the trip plan</h1>"
 
-    # Insert trip_plan string into the HTML content
-    html_content = f"""
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Trip Plan</title>
-        <!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-        <!-- Font Awesome Icons -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
-        <style>
-            body {{ padding-top: 20px; }}
-            .container {{ max-width: 800px; }}
-            .icon {{ padding-right: 5px; }}
-        </style>
-    </head>
-    <body>
-            <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Destination</h5>
-                <p class="card-text">{trip.destination}</p>
+    try:
+        data = await gather_data(trip)
+        # #return data
+        trip_plan =  get_trip_suggestions(client, data)  # This returns the trip plan as a string
+        trip_plan_html = trip_plan.replace("\n", "<br>")
 
-                <h5 class="card-title">Budget</h5>
-                <p class="card-text">{trip.budget}</p>
+        # Insert trip_plan string into the HTML content
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".html", mode="w+") as tmp_file:
+                    html_content = f"""
+                    <!DOCTYPE html>
+                    <html lang="en">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Trip Plan</title>
+                        <!-- Bootstrap CSS -->
+                        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+                        <!-- Font Awesome Icons -->
+                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+                        <style>
+                            body {{ padding-top: 20px; }}
+                            .container {{ max-width: 800px; }}
+                            .icon {{ padding-right: 5px; }}
+                        </style>
+                    </head>
+                    <body>
+                            <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Destination</h5>
+                                <p class="card-text">{trip.destination}</p>
+                
+                                <h5 class="card-title">Budget</h5>
+                                <p class="card-text">{trip.budget}</p>
+                
+                                <h5 class="card-title>Start Date</h5>
+                                <p class="card-text">{trip.start_date}</p>
+                
+                                <h5 class="card-title>End Date</h5>
+                                <p class="card-text">{trip.end_date}</p>
+                
+                            </div>
+                            </div>
+                
+                    <div class="container">
+                        <div class="jumbotron text-center">
+                            <h1 class="display-4"><i class="fas fa-map-marked-alt icon"></i>Your Trip Plan</h1>
+                            <p class="lead">Here's a detailed plan for your upcoming adventure.</p>
+                            <div class="trip-plan">{trip_plan_html}</div>  <!-- Display the trip plan string here -->
+                        </div>
+                        </div>
+                
+                    </div>
+                </body>
+                    </html>
+                    """
+                    tmp_file.write(html_content)
+                    tmp_file_path = tmp_file.name
 
-                <h5 class="card-title>Start Date</h5>
-                <p class="card-text">{trip.start_date}</p>
+        with open(tmp_file_path, "r") as tmp_file:
+            html_content = tmp_file.read()
 
-                <h5 class="card-title>End Date</h5>
-                <p class="card-text">{trip.end_date}</p>
+        os.remove(tmp_file_path)
+    except Exception as e:
+        print(f"An error occurred in get_trip_plan: {e}")
+        return HTMLResponse(content=html_content, status_code=500)
+    finally:
+        return HTMLResponse(content=html_content, status_code=200)
 
-            </div>
-            </div>
 
-    <div class="container">
-        <div class="jumbotron text-center">
-            <h1 class="display-4"><i class="fas fa-map-marked-alt icon"></i>Your Trip Plan</h1>
-            <p class="lead">Here's a detailed plan for your upcoming adventure.</p>
-            <div class="trip-plan">{trip_plan_html}</div>  <!-- Display the trip plan string here -->
-        </div>
-        </div>
-
-    </div>
-</body>
-    </html>
-    """
-
-    file_path = '/Users/tomerjuster/Desktop/Final Project Software Development Using AI/trip_plan.html'  # Specify the path where you want to save the HTML file
-
-    with open(file_path, 'w') as file:
-        file.write(html_content)
-
-    return HTMLResponse(content=html_content)

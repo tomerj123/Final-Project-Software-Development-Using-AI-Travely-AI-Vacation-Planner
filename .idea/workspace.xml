@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="43688a55-f31a-4124-ad93-f4a816785735" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/flights.py" beforeDir="false" afterPath="$PROJECT_DIR$/flights.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="Sione" />
+      </map>
+    </option>
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "FastAPI.fast api.executor": "Run",
+    "Python.main.executor": "Run",
+    "git-widget-placeholder": "Tomer",
+    "last_opened_file_path": "C:/Users/SioneMilhem/Documents/Ai dev class/Final-Project-Software-Development-Using-AI/main.py",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "settings.editor.selected.configurable": "reference.idesettings.debugger.python"
+  }
+}]]></component>
+  <component name="PyDebuggerOptionsProvider">
+    <option name="myAttachToSubprocess" value="false" />
+    <option name="mySupportQtDebugging" value="false" />
+  </component>
+  <component name="RunManager">
+    <configuration name="fast api" type="Python.FastAPI" activateToolWindowBeforeRun="false">
+      <option name="appName" value="app" />
+      <option name="file" value="C:\Users\SioneMilhem\Documents\Ai dev class\Final-Project-Software-Development-Using-AI\main.py" />
+      <module name="Final-Project-Software-Development-Using-AI" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="TaskManager">
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="LAST_COMMIT_MESSAGE" value="" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/main.py</url>
+          <line>162</line>
+          <option name="timeStamp" value="20" />
+        </line-breakpoint>
+      </breakpoints>
+      <default-breakpoints>
+        <breakpoint type="python-exception">
+          <properties notifyOnTerminate="true" exception="BaseException">
+            <option name="notifyOnTerminate" value="true" />
+          </properties>
+        </breakpoint>
+      </default-breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/Final_Project_Software_Development_Using_AI$main.coverage" NAME="main Coverage Results" MODIFIED="1708201365447" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Final_Project_Software_Development_Using_AI$fast_api.coverage" NAME="fast api Coverage Results" MODIFIED="1708205384096" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+  </component>
+</project>
