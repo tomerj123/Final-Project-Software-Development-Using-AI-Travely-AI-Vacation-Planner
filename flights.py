@@ -8,116 +8,217 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 
+# def get_page(from_place, to_place, departure_date, return_date):
+#     options = Options()
+#     options.headless = True
+#     options.add_argument("--disable-webusb")
+#     driver = webdriver.Chrome(options=options)
+
+#     try:
+#         driver.get('https://www.google.com/travel/flights?hl=en-US&curr=USD')
+#         wait = WebDriverWait(driver, 20)
+
+#         # Interact with the "From" input field
+#         from_place_field = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "input.II2One.j0Ppje.zmMKJ.LbIaRd")))
+#         from_place_field.click()
+#         from_place_field.clear()
+#         from_place_field.send_keys(from_place)
+#         from_place_field.send_keys(Keys.TAB)  # Move focus to the next field
+
+#         # Ensure the "Where to?" field is focused and interact with it
+#         wait.until(lambda driver: driver.switch_to.active_element.get_attribute('aria-label') == 'Where to?')
+#         to_place_field = driver.switch_to.active_element
+#         to_place_field.send_keys(to_place)
+#         to_place_field.send_keys(Keys.TAB)  # Move focus to the next field
+
+#         # Interact with "Departure" and "Return" date fields
+#         # Similar approach as above using wait.until and driver.switch_to.active_element
+#         departure_date_field = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "input[placeholder='Departure']")))
+#         if departure_date_field:
+#             departure_date_field.click()
+#             departure_date_field.clear()
+#             time.sleep(3) 
+#             departure_date_field.send_keys(departure_date)
+#             time.sleep(3) 
+#             departure_date_field.send_keys(Keys.TAB)
+#             time.sleep(3)  # Wait for focus transition
+#         return_date_field = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "input[placeholder='Return']")))
+#         if return_date_field:
+#             return_date_field.click()
+#             return_date_field.clear()
+#             time.sleep(3) 
+#             return_date_field.send_keys(return_date)
+#             time.sleep(3) 
+#             return_date_field.send_keys(Keys.TAB)
+#             time.sleep(3)
+
+#         # Initiate the search
+#         search_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[aria-label='Search']")))  # Adjusted for a more generic selector
+#         search_button.click()
+
+#         wait.until(lambda driver: "results" in driver.current_url)  # Wait for the search results page to load
+
+#         # Parse the page content
+#         soup = BeautifulSoup(driver.page_source, 'html.parser')
+#         return soup
+
+#     finally:
+#         driver.quit()
 def get_page(from_place, to_place, departure_date, return_date):
     options = Options()
+    options.add_argument("--disable-webusb")
     options.headless = True  # Run Chrome in headless mode
-    options.add_argument("--disable-webusb") 
     driver = webdriver.Chrome(options=options)
-    try:
+    
 
-        # Navigate to Google Flights
+    try:
         driver.get('https://www.google.com/travel/flights?hl=en-US&curr=USD')
-        time.sleep(10)
         wait = WebDriverWait(driver, 10)
-        # Interact with the web page to input flight details
+
+        # Interact with the "From" input field
         from_place_field = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "input.II2One.j0Ppje.zmMKJ.LbIaRd")))
-        if from_place_field:
-              # Wait for the "From" input field to be clickable and interact with it
-            from_place_field.click()
-            from_place_field.clear()
-            from_place_field.send_keys(from_place)
-            from_place_field.send_keys(Keys.TAB)
-            time.sleep(2)  # Wait for focus transition
-            from_place_field.send_keys(Keys.TAB)
-            time.sleep(3)
-            to_place_field = driver.switch_to.active_element  # Switch to the active element, which should be the "Where to?" field
+        from_place_field.click()
+        from_place_field.clear()
+        from_place_field.send_keys(from_place)
+        
+        # Use TAB key to navigate to the "Where to?" input field
+        from_place_field.send_keys(Keys.TAB)
+        time.sleep(3)  # Wait for focus transition
+        from_place_field.send_keys(Keys.TAB)
+        time.sleep(3)  # Wait for focus to reach the "Where to?" field
+
+        # Assuming the focus is now on the "Where to?" field, start typing the destination
+        # to_place_field = driver.switch_to.active_element
+        # while to_place_field.get_attribute('accessible_name') != 'Where to? ':
+        #     from_place_field.send_keys(Keys.TAB) 
+        #     to_place_field = driver.switch_to.active_element # Move focus to the next field
+        to_place_field = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "input[aria-label='Where to? ']")))
+        if to_place_field:
+            time.sleep(3)  # Wait for the field to be focused
             to_place_field.send_keys(to_place)
-            time.sleep(2)
+            time.sleep(3)  # Wait for the input to be processed
+            to_place_field.send_keys(Keys.TAB)  # Move focus to the next field
+            time.sleep(3)  # Wait for focus transition
+            to_place_field.send_keys(Keys.TAB)  # Move focus to the next field
+            time.sleep(3)  # Wait for focus transition
             to_place_field.send_keys(Keys.TAB)
-            time.sleep(2)  # Wait for focus transition
-            to_place_field.send_keys(Keys.TAB)
-            time.sleep(2)
-            from_date_field = driver.switch_to.active_element
-            from_date_field.send_keys(departure_date)
-            from_date_field.send_keys(Keys.TAB)
-            time.sleep(2)  # Wait for focus transition
-            from_date_field.send_keys(Keys.TAB)
-            time.sleep(2)
+            time.sleep(3)  # Wait for focus transition
+        # Interact with the "Departure" and "Return" date fields
+        departure_date_field = driver.switch_to.active_element
+        while departure_date_field.accessible_name != 'Departure':
+            departure_date_field.send_keys(Keys.TAB) 
+            time.sleep(3)
+            departure_date_field = driver.switch_to.active_element
+
+        time.sleep(3) 
+        departure_date_field.send_keys(departure_date)
+        time.sleep(3) 
+        departure_date_field.send_keys(Keys.TAB)
+        time.sleep(3)  # Wait for focus transition
+        # return_date_field = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "input[placeholder='Return']")))
+        return_date_field = driver.switch_to.active_element
+        while return_date_field.accessible_name != 'Return':
+            return_date_field.send_keys(Keys.TAB) 
+            time.sleep(3)
             return_date_field = driver.switch_to.active_element
+
+        if return_date_field:
+            time.sleep(3) 
             return_date_field.send_keys(return_date)
+            time.sleep(3) 
+            return_date_field.send_keys(Keys.TAB)
+            time.sleep(3)
+      
+
 
       
 
 
 
-        # Initiate the search
-        search_button = driver.find_element("css selector", ".VfPpkd-LgbsSe VfPpkd-LgbsSe-OWXEXe-k8QpJ VfPpkd-LgbsSe-OWXEXe-Bz112c-M1Soyc nCP5yc AjY5Oe LQeN7 TUT4y zlyfOd")
-        search_button.click()  # Click the search button to initiate the search
-        time.sleep(5)  # Wait for the search results to load
+        search_button = driver.switch_to.active_element
+        time.sleep(3)
+        search_button.click()
 
-        time.sleep(5)  # Wait for search results
+        # Wait for search results to load
+        time.sleep(5)  # Consider using WebDriverWait here as well for a more reliable wait
 
         # Parse the page content
         soup = BeautifulSoup(driver.page_source, 'html.parser')
         return soup
-
+    except NoSuchElementException as e:
+        print(f"Element not found: {e}")
+    except TimeoutException as e:
+        print(f"Operation timed out: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
     finally:
         driver.quit()
 
 
+
+
 def scrape_google_flights(soup):
-    data = {}
+    flights = []
     try:
-        categories = soup.select('.zBTtmb')
-        category_results = soup.select('.Rk10dc')
+    # Each flight information is enclosed in a 'div' with class 'gQ6yfe m7VU8c'
+        flight_containers = soup.select('.gQ6yfe.m7VU8c')
 
-        for category, category_result in zip(categories, category_results):
-            category_data = []
+        for flight in flight_containers:
+        # Extracting airline
+            airline = flight.select_one('.sSHqwe.tPgKwe.ogfYpf span').get_text() if flight.select_one('.sSHqwe.tPgKwe.ogfYpf span') else None
 
-            for result in category_result.select('.yR1fYc'):
-                date = result.css('[jscontroller="cNtv4b"] span')
-                departure_date = date[0].text()
-                arrival_date = date[1].text()
-                company = result.css_first('.Ir0Voe .sSHqwe').text()
-                duration = result.css_first('.AdWm1c.gvkrdb').text()
-                stops = result.css_first('.EfT7Ae .ogfYpf').text()
-                emissions = result.css_first('.V1iAHe .AdWm1c').text()
-                emission_comparison = result.css_first('.N6PNV').text()
-                price = result.css_first('.U3gSDe .FpEdX span').text()
-                price_type = result.css_first('.U3gSDe .N872Rd').text() if result.css_first('.U3gSDe .N872Rd') else None
+            # Extracting price
+            price = flight.select_one('.YMlIz.FpEdX span').get_text() if flight.select_one('.YMlIz.FpEdX span') else None
 
-                flight_data = {
-                    'departure_date': departure_date,
-                    'arrival_date': arrival_date,
-                    'company': company,
-                    'duration': duration,
-                    'stops': stops,
-                    'emissions': emissions,
-                    'emission_comparison': emission_comparison,
-                    'price': price,
-                    'price_type': price_type
-                }
+            # Extracting flight type (e.g., Nonstop)
+            flight_type = flight.select_one('.EfT7Ae.AdWm1c.tPgKwe span').get_text() if flight.select_one('.EfT7Ae.AdWm1c.tPgKwe span') else None
 
-                airports = result.css_first('.Ak5kof .sSHqwe')
-                service = result.css_first('.hRBhge')
+            # Extracting departure and arrival times
+            departure_time = flight.select_one('.wtdjmc.YMlIz.ogfYpf.tPgKwe').get_text() if flight.select_one('.wtdjmc.YMlIz.ogfYpf.tPgKwe') else None
+            arrival_time = flight.select_one('.XWcVob.YMlIz.ogfYpf.tPgKwe').get_text() if flight.select_one('.XWcVob.YMlIz.ogfYpf.tPgKwe') else None
 
-                if service:
-                    flight_data['service'] = service.text()
-                else:
-                    flight_data['departure_airport'] = airports.css_first('span:nth-child(1) .eoY5cb').text()
-                    flight_data['arrival_airport'] = airports.css_first('span:nth-child(2) .eoY5cb').text()
+            # Extracting total duration
+            duration = flight.select_one('.gvkrdb.AdWm1c.tPgKwe.ogfYpf').get_text() if flight.select_one('.gvkrdb.AdWm1c.tPgKwe.ogfYpf') else None
 
-                category_data.append(flight_data)
+            # Extracting departure and arrival airports using more specific selectors based on the provided snippets
+            departure_airport_div = flight.select_one('.ZHa2lc.tdMWuf.y52p7d')
+            departure_airport_name = departure_airport_div.get_text(strip=True) if departure_airport_div else None
+            airport_code_span = departure_airport_div.select_one('span[dir="ltr"]')
+            if airport_code_span:
+                departure_airport_code = airport_code_span.get_text(strip=True).strip('()')
+            else:
+                departure_airport_code = None
+            # Extracting arrival airport name and code
+            arrival_airport_div = flight.select_one('.FY5t7d.tdMWuf.y52p7d')
+            arrival_airport_name = arrival_airport_div.get_text(strip=True) if arrival_airport_div else None
+            airport_code_span = arrival_airport_div.select_one('span[dir="ltr"]')
+            if airport_code_span:
+                arrival_airport_code = airport_code_span.get_text(strip=True).strip('()')
+            else:
+                arrival_airport_code = None
 
-            data[category.get_text().lower().replace(' ', '_')] = category_data
 
+            flight_info = {
+                'airline': airline,
+                'price': price,
+                'flight_type': flight_type,
+                'departure_time': departure_time,
+                'arrival_time': arrival_time,
+                'duration': duration,
+                'departure_airport': departure_airport_name + " " + departure_airport_code,
+                'arrival_airport': arrival_airport_name + " " + arrival_airport_code
+            }
+
+            flights.append(flight_info)
     except Exception as e:
-        print(f"An error occurred in scrape_google_flights: {e}")
-        raise
+        print(f"An error occurred while scraping flight information: {e}")
+    finally:
+        return flights
 
-    return data
+
 
 
 def run(from_place, to_place, departure_date, return_date):

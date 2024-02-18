@@ -52,7 +52,6 @@ async def get_hotel_info(destination, check_in_date, check_out_date):
         "api_key": os.environ.get("SERPAPI_API_KEY")
     }
 
-    print(serpapi_params)
     async with httpx.AsyncClient() as client:
         response = await client.get("https://serpapi.com/search?engine=google_hotels", params=serpapi_params)
 
