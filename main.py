@@ -8,14 +8,29 @@ from flights import run
 from fastapi.responses import HTMLResponse
 import httpx
 import requests
-
+import logging
 
 load_dotenv()
 
+# Configure the logging system
+logging.basicConfig(filename='data.log', level=logging.DEBUG,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 client = OpenAI(
     api_key=os.environ.get("OPENAI_API_KEY"),
 )
+
+
+def generate_photo_for_html(destination):
+    response = client.images.generate(
+        model="dall-e-3",
+        prompt="I'm planning a trip to " + destination + ". Can you help me to create a photo for the trip?",
+        size="1024x1024",
+        quality="standard",
+        n=1,
+    )
+    image_url = response.data[0].url
+    return image_url
 
 
 def get_trip_suggestions(client, prompt):
@@ -25,14 +40,19 @@ def get_trip_suggestions(client, prompt):
                 "role": "user",
                 "content": prompt + ". this is all the data that i have gathered so far about the trip im planning. "
                                     "please help me to create a detailed plan for the trip based on this data. write "
-                                    "to me what is the best flight based on the data i provided. then write a "
-                                    "detailed plan for each day each day and consider the budget i have left after "
-                                    "the flight. also, please help me to find a good accommodation and activities for "
-                                    "the trip if i haven't provided any."
+                                    "brief list of the flights and show to me what is the best flight based on the data i "
+                                    "provided. then do the same for the hotels i provided. Then write a"
+                                    "detailed plan for each day and consider the budget i have left after "
+                                    "the flight and hotel. use the attractions i provided from tripadvisor and the nearby places in the hotel info to create a detailed plan for each "
+                                    "day. use all the budget and tell me recommendations for events and activities i "
+                                    "can do in the destination and also include shopping and dining."
+                                    "i also want to mention that i will put this plan in my html page here: <div "
+                                    "class=trip-plan>{trip_plan_html}</div> so please make the format of the plan in "
+                                    "a way that will look good in the html page. (i.e if you want to make some text bold then use <b> tag and not **bold**)."
             }
         ],
         model="gpt-4-0125-preview",
-        #model="gpt-3.5-turbo",
+        # model="gpt-3.5-turbo",
     )
     return chat_completion.choices[0].message.content
 
@@ -60,7 +80,8 @@ async def get_hotel_info(destination, check_in_date, check_out_date):
             return response.json()["properties"]
         else:
             print(f"Error: {response.text}")  # Print error message for debugging
-            raise HTTPException(status_code=response.status_code, detail=f"Failed to fetch hotel data from SerpApi: {response.text}")
+            raise HTTPException(status_code=response.status_code,
+                                detail=f"Failed to fetch hotel data from SerpApi: {response.text}")
 
 
 def extract_hotel_data(hotels_data):
@@ -99,6 +120,7 @@ def format_hotels_for_prompt(hotels_data):
 
     return hotels_string
 
+
 def get_top_hotels(client, hotels_data):
     # Use the extract_hotel_data function to extract hotel information
     extracted_data = extract_hotel_data(hotels_data)
@@ -118,15 +140,16 @@ def get_top_hotels(client, hotels_data):
     return chat_completion.choices[0].message.content
 
 
-def get_activities_info(destination):
+async def get_activities_info(destination):
     key = os.environ.get("TRIPADVISOR_API_KEY")
     url = f"https://api.content.tripadvisor.com/api/v1/location/search?key={key}&searchQuery={destination}&category=attractions&language=en"
-
+    url2 = f"https://api.content.tripadvisor.com/api/v1/location/search?key={key}&searchQuery={destination}&category=restaurants&language=en"
     headers = {"accept": "application/json"}
 
     response = requests.get(url, headers=headers)
+    response2 = requests.get(url2, headers=headers)
+    return response.text + "\n" + response2.text
 
-    return response.text
 
 async def get_event_tickets(destination, start_date, end_date):
     seatgeek_params = {
@@ -143,7 +166,9 @@ async def get_event_tickets(destination, start_date, end_date):
             return response.json()["events"]
         else:
             print(f"Error: {response.text}")  # Print error message for debugging
-            raise HTTPException(status_code=response.status_code, detail=f"Failed to fetch event data from SeatGeek: {response.text}")
+            raise HTTPException(status_code=response.status_code,
+                                detail=f"Failed to fetch event data from SeatGeek: {response.text}")
+
 
 class TripDescription(BaseModel):
     origin: str
@@ -155,10 +180,11 @@ class TripDescription(BaseModel):
 
 async def gather_data(trip: TripDescription):
     flights_info = await get_flights_info(trip.origin, trip.destination, trip.start_date, trip.end_date, trip.budget)
-    #print(flights_info)
+    # print(flights_info)
     hotels_info = await get_hotel_info(trip.destination, trip.start_date, trip.end_date)
     top_hotels = get_top_hotels(client, hotels_info)
-    activities_info = get_activities_info(trip.destination)
+    activities_info = await get_activities_info(trip.destination)
+    print(activities_info)
 
     data = f"""
     Destination: {trip.destination}
@@ -182,9 +208,11 @@ def read_root():
 @app.post("/plan-trip/", response_class=HTMLResponse)
 async def get_trip_plan(trip: TripDescription):
     data = await gather_data(trip)
-    #return data
+    # Configure the logging system
+    logging.info(data)
     trip_plan = get_trip_suggestions(client, data)  # This returns the trip plan as a string
     trip_plan_html = trip_plan.replace("\n", "<br>")
+    # data = data.replace("\n", "<br>")
 
     # Insert trip_plan string into the HTML content
     html_content = f"""
@@ -199,39 +227,104 @@ async def get_trip_plan(trip: TripDescription):
         <!-- Font Awesome Icons -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
         <style>
-            body {{ padding-top: 20px; }}
-            .container {{ max-width: 800px; }}
-            .icon {{ padding-right: 5px; }}
+            body {{
+                padding-top: 20px;
+                background-color: #f0f2f5; /* Light grey background */
+            }}
+            .header {{
+                display: flex;
+                align-items: center;
+                padding: 10px 0;
+            }}
+            .header img {{
+                width: 500px; /* Adjust based on your image size */
+                height: auto;
+                margin-left: 600px;
+            }}
+            .container {{
+                max-width: 800px;
+                margin: auto;
+                background-color: #fff; /* White background for the content */
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Adding some shadow for depth */
+                padding: 20px;
+                border-radius: 8px; /* Slightly rounded corners */
+            }}
+            .icon {{
+                padding-right: 5px;
+                color: #007bff; /* Bootstrap primary color */
+            }}
+            .trip-details .card {{
+                margin-bottom: 20px;
+                border-left: 4px solid #007bff; /* Add a colored border to the left */
+            }}
+            .card-body {{
+                color: #495057; /* Darker text for better readability */
+            }}
+            .jumbotron {{
+                background-color: #007bff; /* Bootstrap primary color */
+                color: #fff; /* White text color */
+                border-radius: 8px; /* Slightly rounded corners */
+                padding: 30px;
+                margin-top: 20px;
+            }}
         </style>
     </head>
     <body>
-            <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Destination</h5>
-                <p class="card-text">{trip.destination}</p>
-
-                <h5 class="card-title">Budget</h5>
-                <p class="card-text">{trip.budget}</p>
-
-                <h5 class="card-title>Start Date</h5>
-                <p class="card-text">{trip.start_date}</p>
-
-                <h5 class="card-title>End Date</h5>
-                <p class="card-text">{trip.end_date}</p>
-
-            </div>
-            </div>
-
+    <div class="header">
+        <img src="{generate_photo_for_html(trip.destination)}" alt="Photo">
+    </div>
+    
     <div class="container">
+    
+        <div class="trip-details">
+        
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Destination</h5>
+                    <p class="card-text">{trip.destination}</p>
+                </div>
+            </div>
+    
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Budget</h5>
+                    <p class="card-text">{trip.budget}</p>
+                </div>
+            </div>
+    
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Start Date</h5>
+                    <p class="card-text">{trip.start_date}</p>
+                </div>
+            </div>
+    
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">End Date</h5>
+                    <p class="card-text">{trip.end_date}</p>
+                </div>
+            </div>
+        </div>
+    
         <div class="jumbotron text-center">
             <h1 class="display-4"><i class="fas fa-map-marked-alt icon"></i>Your Trip Plan</h1>
             <p class="lead">Here's a detailed plan for your upcoming adventure.</p>
-            <div class="trip-plan">{trip_plan_html}</div>  <!-- Display the trip plan string here -->
+            <div class="trip-plan">{trip_plan_html}</div> <!-- Display the trip plan string here -->
         </div>
-        </div>
-
+    
     </div>
-</body>
+    <div class="container">
+    <div class="trip-details">
+                <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">full trip data can be found in the log file</h5>
+                </div>
+            </div>
+    </div>
+    </div>
+    
+    </body>
     </html>
     """
 

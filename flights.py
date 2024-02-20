@@ -12,7 +12,7 @@ async def get_page(playwright, from_place, to_place, departure_date, return_date
     browser = await playwright.chromium.launch(headless=False)
     page = await browser.new_page()
     await page.goto('https://www.google.com/travel/flights?hl=en-US&curr=USD')
-    time.sleep(10)
+    time.sleep(6)
     # type "From"
     from_place_field = (await page.query_selector_all('.e5F5td'))[0]
     await from_place_field.click()

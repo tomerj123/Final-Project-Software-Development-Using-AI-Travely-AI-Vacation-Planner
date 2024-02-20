@@ -10,38 +10,103 @@
         <!-- Font Awesome Icons -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
         <style>
-            body { padding-top: 20px; }
-            .container { max-width: 800px; }
-            .icon { padding-right: 5px; }
+            body {
+                padding-top: 20px;
+                background-color: #f0f2f5; /* Light grey background */
+            }
+            .header {
+                display: flex;
+                align-items: center;
+                padding: 10px 0;
+            }
+            .header img {
+                width: 500px; /* Adjust based on your image size */
+                height: auto;
+                margin-left: 600px;
+            }
+            .container {
+                max-width: 800px;
+                margin: auto;
+                background-color: #fff; /* White background for the content */
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Adding some shadow for depth */
+                padding: 20px;
+                border-radius: 8px; /* Slightly rounded corners */
+            }
+            .icon {
+                padding-right: 5px;
+                color: #007bff; /* Bootstrap primary color */
+            }
+            .trip-details .card {
+                margin-bottom: 20px;
+                border-left: 4px solid #007bff; /* Add a colored border to the left */
+            }
+            .card-body {
+                color: #495057; /* Darker text for better readability */
+            }
+            .jumbotron {
+                background-color: #007bff; /* Bootstrap primary color */
+                color: #fff; /* White text color */
+                border-radius: 8px; /* Slightly rounded corners */
+                padding: 30px;
+                margin-top: 20px;
+            }
         </style>
     </head>
     <body>
-            <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Destination</h5>
-                <p class="card-text">tokyo</p>
-
-                <h5 class="card-title">Budget</h5>
-                <p class="card-text">15000</p>
-
-                <h5 class="card-title>Start Date</h5>
-                <p class="card-text">2024-04-10</p>
-
-                <h5 class="card-title>End Date</h5>
-                <p class="card-text">2024-04-20</p>
-
-            </div>
-            </div>
-
+    <div class="header">
+        <img src="https://oaidalleapiprodscus.blob.core.windows.net/private/org-2CwskBzgGP5OnJE5rJP2GrIS/user-cuxSx2BvVvOWW9ZvjljBnrZW/img-ICQv6BkZ075jTm3UrO6oawuk.png?st=2024-02-20T14%3A39%3A50Z&se=2024-02-20T16%3A39%3A50Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-02-20T13%3A11%3A44Z&ske=2024-02-21T13%3A11%3A44Z&sks=b&skv=2021-08-06&sig=oH6%2BM14iEb20cO/yNnY178L0QrwRHWzrhGiCxymkJOM%3D" alt="Photo">
+    </div>
+    
     <div class="container">
+    
+        <div class="trip-details">
+        
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Destination</h5>
+                    <p class="card-text">Paris</p>
+                </div>
+            </div>
+    
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Budget</h5>
+                    <p class="card-text">5000</p>
+                </div>
+            </div>
+    
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Start Date</h5>
+                    <p class="card-text">2024-04-10</p>
+                </div>
+            </div>
+    
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">End Date</h5>
+                    <p class="card-text">2024-04-16</p>
+                </div>
+            </div>
+        </div>
+    
         <div class="jumbotron text-center">
             <h1 class="display-4"><i class="fas fa-map-marked-alt icon"></i>Your Trip Plan</h1>
             <p class="lead">Here's a detailed plan for your upcoming adventure.</p>
-            <div class="trip-plan">Let's structure your trip to Tokyo based on the information provided. <br><br>### Flight Selection<br><br>Given the flight options and considering cost, duration, and CO2 emissions, the best option seems to be the flight with LOT, at $956 for a round trip. It has a moderate duration of 31 hours and 30 minutes with a single stop and offers a 22% reduction in emissions compared to average flights in the selection. This leaves you with $14,044 ($15,000 - $956) for accommodation, activities, and other expenses.<br><br>### Accommodation<br><br>Given your budget and the accommodation options provided, the Shinjuku Granbell Hotel appears to offer the best value. It has the lowest rate per night at $146 with a total lodging cost of $1,461 for 10 nights. This means you'll have $12,583 left after subtracting the cost for flights and hotel.<br><br>### Detailed Plan<br><br>**Day 1: Arrival in Tokyo**<br><br>- Check into the Shinjuku Granbell Hotel. <br>- Spend the evening exploring Shinjuku, visit the nearby Shinjuku Golden Gai for dinner and drinks.<br><br>**Day 2: Shinjuku Exploration**<br><br>- Visit the Tokyo Metropolitan Government Building for panoramic views of Tokyo.<br>- Explore Shinjuku Gyoen National Garden.<br>- Dinner at a local Izakaya in Shinjuku.<br><br>**Day 3: Shibuya and Harajuku**<br><br>- Visit the famous Shibuya Crossing.<br>- Explore Takeshita Street in Harajuku for unique fashion and street food.<br>- Visit Meiji Shrine.<br><br>**Day 4: Asakusa and Akihabara**<br><br>- Visit Senso-ji, Tokyo's oldest temple in Asakusa.<br>- Explore Akihabara, known for its electronics shops and anime culture.<br><br>**Day 5: Day Trip to Nikko**<br><br>- Use a portion of your budget for a day trip to Nikko (approx. $120 for transportation and entry fees).<br>- Visit the Toshogu Shrine and enjoy the natural landscapes.<br><br>**Day 6: Odaiba**<br><br>- Visit the TeamLab Borderless digital art museum.<br>- Enjoy the Odaiba Seaside Park.<br><br>**Day 7: Tsukiji Market and Ginza**<br><br>- Early morning visit to Tsukiji Outer Market for breakfast.<br>- Explore the upscale shopping district, Ginza.<br>- Visit the Imperial Palace Garden.<br><br>**Day 8: Roppongi**<br><br>- Visit the Mori Art Museum.<br>- Explore Roppongi Hills.<br><br>**Day 9: Tokyo Disneyland or DisneySea**<br><br>- Choose between Disneyland or DisneySea for a full day of fun. Expect to spend around $100 for the ticket.<br><br>**Day 10: Free Day / Shopping**<br><br>- Use this day to explore any areas you may have missed or want to revisit.<br>- Ideal for last-minute shopping in areas like Shibuya or Shinjuku.<br><br>### Budget After Accommodation and Flight<br><br>- Remaining Budget: $12,583<br><br>### Estimated Costs for Activities and Daily Expenditures<br><br>- Daily food and transportation: $50/day x 10 = $500<br>- Entrance fees and miscellaneous: $50/day x 10 = $500<br>- Day trip to Nikko: $120<br>- Tokyo Disneyland/DisneySea: $100<br>- Total estimated cost: $1,220<br><br>This leaves a significant portion of your budget for shopping, additional activities, or higher-end dining experiences.<br><br>### Final Notes<br><br>Please ensure to book your activities ahead of time, especially for popular attractions like the TeamLab Borderless museum and Tokyo Disneyland/DisneySea, which may require advance reservations. The detailed plan includes both modern and traditional aspects of Tokyo, ensuring a well-rounded experience. Also, keep some flexibility in your plans to accommodate for weather changes or new discoveries during your trip.<br><br>This should give you a solid foundation for your trip to Tokyo. Enjoy your journey!</div>  <!-- Display the trip plan string here -->
+            <div class="trip-plan">Given your requirements and the data provided, let's break down the planning into sections:<br><br>Best Flight Choice:<br>Based on the flight information you've given, the best flight, considering cost and emission reductions, appears to be the flight from Transavia with the following details:<br>- <b>Departure Date & Time:</b> 6:25 PM<br>- <b>Arrival Date & Time:</b> 10:35 PM<br>- <b>Company:</b> Transavia<br>- <b>Duration:</b> 5 hr 10 min<br>- <b>Stops:</b> Nonstop<br>- <b>Emissions:</b> 244 kg CO2e<br>- <b>Emission Comparison to other flights:</b> -11% emissions<br>- <b>Price:</b> $371 for a round trip<br><br>This option provides a good balance between cost, flight duration, and environmental considerations.<br><br>Best Hotel Choice:<br>Considering price, location, and provided amenities, <b>Chouette Hôtel</b> seems like an optimal choice:<br>- <b>Rate Per Night (Lowest):</b> $169<br>- <b>Total Rate (Lowest for the stay):</b> $1,011<br>- <b>Nearby Places:</b> Paris Charles de Gaulle Airport, Champa Lao<br><br>This choice leaves more of your budget for activities, dining, and shopping.<br><br>### Remaining Budget Post Flight and Hotel:<br>- <b>Budget:</b> $5,000<br>- <b>Flight:</b> $371<br>- <b>Hotel:</b> $1,011<br>- <b>Remaining:</b> $3,618<br><br>Detailed Plan for each day:<br><br>Day 1: Arrival and Local Exploration<br>- Check into Chouette Hôtel<br>- Dinner at <b>Champa Lao</b>, nearby the hotel<br>- Evening stroll to catch a glimpse of the vibrant local neighborhood<br><br>Day 2: Paris Landmarks<br>- <b>Morning:</b> Visit the Cathedrale Notre-Dame de Paris<br>- <b>Lunch:</b> Angelina for their famous hot chocolate and pastries<br>- <b>Afternoon:</b> Explore the Musee Carnavalet - Histoire de Paris<br>- <b>Dinner:</b> Gigi Paris on avenue Montaigne<br><br>Day 3: Disneyland Paris<br>- Spend the day at Disneyland Paris<br>- Return in the evening, dinner at a local restaurant near the hotel<br><br>Day 4: Culinary and Cultural Experience<br>- <b>Morning:</b> Paris by Mouth tour for a culinary exploration<br>- <b>Lunch:</b> Pizzamore Paris<br>- <b>Afternoon:</b> Free time for shopping around Galeries Lafayette Paris Haussmann<br>- <b>Evening:</b> Dinner at L' Entrecote de Paris<br><br>Day 5: The Heart of Paris<br>- <b>Morning:</b> Walk and shopping along the Seine, visit bouquinistes (street booksellers)<br>- <b>Lunch:</b> LouLou Paris Restaurant<br>- <b>Afternoon:</b> Visit to The Paris Catacombs<br>- <b>Dinner:</b> Ciel de Paris for a meal with stunning views<br><br>Day 6: Leisure and Departure Preparations<br>- Utilize the Paris Metro for convenient travel to preferred destinations or revisit favorite places<br>- <b>Lunch:</b> Au Vieux Paris for a classic Parisian experience<br>- <b>Afternoon:</b> Leisure time, pack for departure<br>- <b>Dinner:</b> A light meal at a local cafe<br><br> Recommendations for Events and Activities:<br>- Check local listings for concerts or shows happening during your stay.<br>- Visit local markets like the Marché des Enfants Rouges for a taste of local life.<br>- Reserve a spot for a Seine river cruise for a serene view of Paris from the water.<br><br>Shopping & Dining Recommendations:<br>- <b>Shopping:</b> Besides Galeries Lafayette, don’t miss visiting Le Marais district for boutique shopping.<br>- <b>Dining:</b> Explore the Latin Quarter for affordable and diverse dining options.<br><br></div>
         </div>
-        </div>
-
+    
     </div>
-</body>
+    <div class="container">
+    <div class="trip-details">
+                <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">full trip data can be found in the log file</h5>
+                </div>
+            </div>
+    </div>
+    </div>
+    
+    </body>
     </html>
     
