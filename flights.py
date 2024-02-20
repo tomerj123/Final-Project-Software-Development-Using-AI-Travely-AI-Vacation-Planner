@@ -11,62 +11,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 
-# def get_page(from_place, to_place, departure_date, return_date):
-#     options = Options()
-#     options.headless = True
-#     options.add_argument("--disable-webusb")
-#     driver = webdriver.Chrome(options=options)
 
-#     try:
-#         driver.get('https://www.google.com/travel/flights?hl=en-US&curr=USD')
-#         wait = WebDriverWait(driver, 20)
 
-#         # Interact with the "From" input field
-#         from_place_field = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "input.II2One.j0Ppje.zmMKJ.LbIaRd")))
-#         from_place_field.click()
-#         from_place_field.clear()
-#         from_place_field.send_keys(from_place)
-#         from_place_field.send_keys(Keys.TAB)  # Move focus to the next field
-
-#         # Ensure the "Where to?" field is focused and interact with it
-#         wait.until(lambda driver: driver.switch_to.active_element.get_attribute('aria-label') == 'Where to?')
-#         to_place_field = driver.switch_to.active_element
-#         to_place_field.send_keys(to_place)
-#         to_place_field.send_keys(Keys.TAB)  # Move focus to the next field
-
-#         # Interact with "Departure" and "Return" date fields
-#         # Similar approach as above using wait.until and driver.switch_to.active_element
-#         departure_date_field = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "input[placeholder='Departure']")))
-#         if departure_date_field:
-#             departure_date_field.click()
-#             departure_date_field.clear()
-#             time.sleep(3) 
-#             departure_date_field.send_keys(departure_date)
-#             time.sleep(3) 
-#             departure_date_field.send_keys(Keys.TAB)
-#             time.sleep(3)  # Wait for focus transition
-#         return_date_field = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "input[placeholder='Return']")))
-#         if return_date_field:
-#             return_date_field.click()
-#             return_date_field.clear()
-#             time.sleep(3) 
-#             return_date_field.send_keys(return_date)
-#             time.sleep(3) 
-#             return_date_field.send_keys(Keys.TAB)
-#             time.sleep(3)
-
-#         # Initiate the search
-#         search_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[aria-label='Search']")))  # Adjusted for a more generic selector
-#         search_button.click()
-
-#         wait.until(lambda driver: "results" in driver.current_url)  # Wait for the search results page to load
-
-#         # Parse the page content
-#         soup = BeautifulSoup(driver.page_source, 'html.parser')
-#         return soup
-
-#     finally:
-#         driver.quit()
 def get_page(from_place, to_place, departure_date, return_date):
     options = Options()
     options.add_argument("--disable-webusb")
@@ -90,11 +36,7 @@ def get_page(from_place, to_place, departure_date, return_date):
         from_place_field.send_keys(Keys.TAB)
         time.sleep(3)  # Wait for focus to reach the "Where to?" field
 
-        # Assuming the focus is now on the "Where to?" field, start typing the destination
-        # to_place_field = driver.switch_to.active_element
-        # while to_place_field.get_attribute('accessible_name') != 'Where to? ':
-        #     from_place_field.send_keys(Keys.TAB) 
-        #     to_place_field = driver.switch_to.active_element # Move focus to the next field
+      
         to_place_field = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "input[aria-label='Where to? ']")))
         if to_place_field:
             time.sleep(3)  # Wait for the field to be focused
@@ -131,12 +73,6 @@ def get_page(from_place, to_place, departure_date, return_date):
             time.sleep(3) 
             return_date_field.send_keys(Keys.TAB)
             time.sleep(3)
-      
-
-
-      
-
-
 
         search_button = driver.switch_to.active_element
         time.sleep(3)
