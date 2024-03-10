@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from playwright.async_api import async_playwright
 from pydantic import BaseModel
 from openai import OpenAI
@@ -9,6 +9,7 @@ from fastapi.responses import HTMLResponse
 import httpx
 import requests
 import logging
+import sqlite3
 
 load_dotenv()
 
@@ -57,11 +58,26 @@ def get_trip_suggestions(client, prompt):
     return chat_completion.choices[0].message.content
 
 
-async def get_flights_info(origin, destination, departure_date, return_date, max_price):
-    async with async_playwright() as playwright:
-        google_flights_results = await run(playwright, origin, destination, departure_date, return_date)
+async def get_flights_info(departure_id: str, arrival_id: str, outbound_date: str, return_date: str):
+    serpapi_params = {
+        "departure_id": departure_id,
+        "arrival_id": arrival_id,
+        "outbound_date": outbound_date,
+        "return_date": return_date,
+        "currency": "USD",
+        "hl": "en",
+        "api_key": os.environ.get("SERPAPI_API_KEY")
+    }
 
-    return google_flights_results
+    async with httpx.AsyncClient() as client:
+        response = await client.get("https://serpapi.com/search?engine=google_flights", params=serpapi_params)
+
+        if response.status_code == 200:
+            return response.json()["best_flights"]
+        else:
+            print(f"Error: {response.text}")  # Print error message for debugging
+            raise HTTPException(status_code=response.status_code,
+                                detail=f"Failed to fetch flight data from SerpApi: {response.text}")
 
 
 async def get_hotel_info(destination, check_in_date, check_out_date):
@@ -121,7 +137,7 @@ def format_hotels_for_prompt(hotels_data):
     return hotels_string
 
 
-def get_top_hotels(client, hotels_data):
+async def get_top_hotels(client, hotels_data):
     # Use the extract_hotel_data function to extract hotel information
     extracted_data = extract_hotel_data(hotels_data)
 
@@ -151,40 +167,46 @@ async def get_activities_info(destination):
     return response.text + "\n" + response2.text
 
 
-async def get_event_tickets(destination, start_date, end_date):
-    seatgeek_params = {
-        "venue.city": destination,
-        "datetime_utc.gte": start_date,
-        "datetime_utc.lte": end_date,
-        "client_id": os.environ.get("SEATGEEK_CLIENT_ID")
-    }
-
-    async with httpx.AsyncClient() as client:
-        response = await client.get("https://api.seatgeek.com/2/events", params=seatgeek_params)
-
-        if response.status_code == 200:
-            return response.json()["events"]
-        else:
-            print(f"Error: {response.text}")  # Print error message for debugging
-            raise HTTPException(status_code=response.status_code,
-                                detail=f"Failed to fetch event data from SeatGeek: {response.text}")
-
-
 class TripDescription(BaseModel):
     origin: str
+    origin_iata: str
     destination: str
+    destination_iata: str
     budget: int
     start_date: str
     end_date: str
 
 
+# Connect to your SQLite database
+conn = sqlite3.connect('IATA_Codes.db')
+
+
+def get_iata_code(city_name):
+    cursor = conn.cursor()
+    # Updated query to match the specified format
+    cursor.execute("SELECT IATA_code FROM IATA_Codes WHERE LOWER(Municipality) = LOWER(?)", (city_name,))
+    result = cursor.fetchall()
+    return result if result else None
+
+
+
 async def gather_data(trip: TripDescription):
-    flights_info = await get_flights_info(trip.origin, trip.destination, trip.start_date, trip.end_date, trip.budget)
+    # Convert trip origin and destination names to IATA codes
+    if not trip.origin_iata:
+        trip.origin_iata = get_iata_code(trip.origin)
+    if not trip.destination_iata:
+        trip.destination_iata = get_iata_code(trip.destination)
+    if not trip.origin_iata or not trip.destination_iata:
+        # Handle cases where IATA codes are not found
+        raise HTTPException(status_code=404, detail="IATA code for city not found")
+
+    # Use IATA codes for flight and hotel information fetching
+    flights_info = await get_flights_info(trip.origin_iata, trip.destination_iata, trip.start_date, trip.end_date)
     # print(flights_info)
     hotels_info = await get_hotel_info(trip.destination, trip.start_date, trip.end_date)
-    top_hotels = get_top_hotels(client, hotels_info)
+    top_hotels = await get_top_hotels(client, hotels_info)
     activities_info = await get_activities_info(trip.destination)
-    print(activities_info)
+    # print(activities_info)
 
     data = f"""
     Destination: {trip.destination}
@@ -197,6 +219,16 @@ async def gather_data(trip: TripDescription):
     return data.strip()
 
 
+
+def get_iata_codes_and_airports(city_name):
+    cursor = conn.cursor()
+    query = "SELECT aiport_name, IATA_code FROM IATA_Codes WHERE LOWER(Municipality) = LOWER(?)"
+    cursor.execute(query, (city_name,))
+    results = cursor.fetchall()
+    return [{"Name": name, "IATA code": code} for name, code in results]
+
+
+
 app = FastAPI()
 
 
@@ -204,13 +236,35 @@ app = FastAPI()
 def read_root():
     return {"Hello": "World"}
 
+@app.get("/test-flights/")
+async def test_get_flights_info(departure_id: str = Query(..., title="Departure IATA Code"),
+                                arrival_id: str = Query(..., title="Arrival IATA Code"),
+                                outbound_date: str = Query(..., title="Outbound Date"),
+                                return_date: str = Query(..., title="Return Date")):
+    try:
+        best_flights = await get_flights_info(departure_id, arrival_id, outbound_date, return_date)
+        return {"best_flights": best_flights}
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+@app.get("/select-airport/")
+async def select_airport(city_name: str = Query(..., title="City Name", description="Type the name of the city to get the IATA codes for the airpots")):
+    airports = get_iata_codes_and_airports(city_name)
+    if not airports:
+        raise HTTPException(status_code=404, detail="No airports found for the given city")
+    elif len(airports) == 1:
+        # If there's only one airport, return its IATA code
+        return {"city_name": city_name, "iata_code": airports[0][1]}
+    else:
+        # Return a list of airports for the user to choose from
+        return {"city_name": city_name, "airports": airports}
+
 
 @app.post("/plan-trip/", response_class=HTMLResponse)
 async def get_trip_plan(trip: TripDescription):
     data = await gather_data(trip)
     # Configure the logging system
     logging.info(data)
-    trip_plan = get_trip_suggestions(client, data)  # This returns the trip plan as a string
+    trip_plan = get_trip_suggestions(client, data)  # convert the trip plan to string
     trip_plan_html = trip_plan.replace("\n", "<br>")
     # data = data.replace("\n", "<br>")
 
