@@ -155,7 +155,7 @@ async def get_top_hotels(client, hotels_data):
     )
     return chat_completion.choices[0].message.content
 
-
+"""
 async def get_activities_info(destination):
     key = os.environ.get("TRIPADVISOR_API_KEY")
     url = f"https://api.content.tripadvisor.com/api/v1/location/search?key={key}&searchQuery={destination}&category=attractions&language=en"
@@ -164,7 +164,49 @@ async def get_activities_info(destination):
 
     response = requests.get(url, headers=headers)
     response2 = requests.get(url2, headers=headers)
-    return response.text + "\n" + response2.text
+    return response.text + "\n" + response2.text"""
+
+async def get_activities_info(destination):
+    key = os.environ.get("TRIPADVISOR_API_KEY")
+    headers = {"accept": "application/json"}
+    combined_data = []
+    location_ids = []
+
+    # URLs for attractions and restaurants
+    urls = [
+        f"https://api.content.tripadvisor.com/api/v1/location/search?key={key}&searchQuery={destination}&category=attractions&language=en",
+        f"https://api.content.tripadvisor.com/api/v1/location/search?key={key}&searchQuery={destination}&category=restaurants&language=en"
+    ]
+
+    async with httpx.AsyncClient() as client:
+        for url in urls:
+            response = await client.get(url, headers=headers)
+            if response.status_code == 200:
+                data = response.json().get("data", [])
+                combined_data.extend(data)
+                location_ids.extend([item["location_id"] for item in data])
+
+    return combined_data, location_ids
+
+
+async def get_location_details(location_id):
+    key = os.environ.get("TRIPADVISOR_API_KEY")
+    url = f"https://api.content.tripadvisor.com/api/v1/location/{location_id}/details?language=en&currency=USD&key={key}"
+    headers = {"accept": "application/json"}
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url, headers=headers)
+        if response.status_code == 200:
+            details = response.json()
+            return {
+                "location_id": details["location_id"],
+                "name": details["name"],
+                "latitude": details.get("latitude", None),
+                "longitude": details.get("longitude", None),
+                "website": details.get("website", "N/A")
+            }
+        else:
+            print(f"Error fetching details for location ID {location_id}: {response.text}")
 
 
 class TripDescription(BaseModel):
@@ -205,7 +247,11 @@ async def gather_data(trip: TripDescription):
     # print(flights_info)
     hotels_info = await get_hotel_info(trip.destination, trip.start_date, trip.end_date)
     top_hotels = await get_top_hotels(client, hotels_info)
-    activities_info = await get_activities_info(trip.destination)
+    activities_info, activities_location_ids = await get_activities_info(trip.destination)
+    activities_details = []
+    for location_id in activities_location_ids:
+        activities_details += await get_location_details(location_id)
+
     # print(activities_info)
 
     data = f"""
@@ -235,6 +281,23 @@ app = FastAPI()
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
+
+from fastapi import FastAPI, HTTPException, Query
+
+app = FastAPI()
+
+@app.get("/test-activities/")
+async def test_activities(destination: str = Query(..., title="Destination", description="The destination to fetch activities for")):
+    try:
+        activities_info, ids = await get_activities_info(destination)
+        activities_details = []
+        for location_id in ids:
+            detail = await get_location_details(location_id)
+            if detail:  # Ensure detail is not None
+                activities_details.append(detail)
+        return activities_info, ids, activities_details
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"An error occurred: {str(e)}")
 
 @app.get("/test-flights/")
 async def test_get_flights_info(departure_id: str = Query(..., title="Departure IATA Code"),
