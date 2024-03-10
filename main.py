@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.encoders import jsonable_encoder
 from playwright.async_api import async_playwright
 from pydantic import BaseModel
 from openai import OpenAI
@@ -198,13 +199,9 @@ async def get_location_details(location_id):
         response = await client.get(url, headers=headers)
         if response.status_code == 200:
             details = response.json()
-            return {
-                "location_id": details["location_id"],
-                "name": details["name"],
-                "latitude": details.get("latitude", None),
-                "longitude": details.get("longitude", None),
-                "website": details.get("website", "N/A")
-            }
+            return dict(location_id=details["location_id"], name=details["name"],
+                        location=(float(details.get("latitude", 0)), float(details.get("longitude", 0))),
+                        website=details.get("website", "N/A"))
         else:
             print(f"Error fetching details for location ID {location_id}: {response.text}")
 
@@ -265,7 +262,6 @@ async def gather_data(trip: TripDescription):
     return data.strip()
 
 
-
 def get_iata_codes_and_airports(city_name):
     cursor = conn.cursor()
     query = "SELECT aiport_name, IATA_code FROM IATA_Codes WHERE LOWER(Municipality) = LOWER(?)"
@@ -273,6 +269,22 @@ def get_iata_codes_and_airports(city_name):
     results = cursor.fetchall()
     return [{"Name": name, "IATA code": code} for name, code in results]
 
+from haversine import haversine, Unit
+async def calculate_distances(activities):
+    distances = {}
+    for i in range(len(activities)):
+        for j in range(i + 1, len(activities)):
+            try:
+                # Ensure locations are tuples of floats
+                loc1 = activities[i]['location']
+                loc2 = activities[j]['location']
+                distance = haversine(loc1, loc2)
+                # Create a readable key for the distance
+                key = f"{activities[i]['name']} to {activities[j]['name']}"
+                distances[key] = distance
+            except Exception as e:
+                print(f"Error calculating distance between {activities[i]['name']} and {activities[j]['name']}: {e}")
+    return distances
 
 
 app = FastAPI()
@@ -283,7 +295,8 @@ def read_root():
     return {"Hello": "World"}
 
 from fastapi import FastAPI, HTTPException, Query
-
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 app = FastAPI()
 
 @app.get("/test-activities/")
@@ -293,9 +306,11 @@ async def test_activities(destination: str = Query(..., title="Destination", des
         activities_details = []
         for location_id in ids:
             detail = await get_location_details(location_id)
-            if detail:  # Ensure detail is not None
+            if detail:  # Ensure detail is not None and has 'name' and 'location'
+                # Append the detail dict as-is, assuming it has 'name' and 'location'
                 activities_details.append(detail)
-        return activities_info, ids, activities_details
+        distances = await calculate_distances(activities_details)
+        return distances
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"An error occurred: {str(e)}")
 
