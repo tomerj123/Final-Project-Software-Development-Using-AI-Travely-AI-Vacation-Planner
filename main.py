@@ -244,7 +244,7 @@ def extract_hotel_data(hotels_data):
     # Return the list of extracted data
     return extracted_data
 
-
+#convert the hotel data to a string that can be used in the prompt
 def format_hotels_for_prompt(hotels_data):
     # Initialize an empty string to hold the formatted hotel information
     hotels_string = ""
@@ -382,7 +382,6 @@ async def get_trip_plan(trip: TripDescription):
     trip_plan = get_trip_suggestions(client, data)  # convert the trip plan to string
     trip_plan = format_trip_plan(trip_plan)
     trip_plan_html = trip_plan.replace("\n", "<br>")
-    # data = data.replace("\n", "<br>")
 
     # Insert trip_plan string into the HTML content
     html_content = f"""

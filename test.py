@@ -3,7 +3,6 @@ import httpx
 from unittest.mock import MagicMock, patch
 from unittest.mock import AsyncMock
 import sqlite3
-import re
 
 from main import (
     calculate_distances,
@@ -12,19 +11,19 @@ from main import (
     get_iata_codes_and_airports,
     format_trip_plan,
     extract_hotel_data,
-    format_hotels_for_prompt,
+    format_hotels_for_prompt, get_activities_info, get_hotel_info,
 )
 
-
 class TestFunctions(unittest.IsolatedAsyncioTestCase):
-    async def test_calculate_distances(self):
+    async def test_calculate_distances_between_locations(self):
         activities = [
             {"name": "A", "location": (0, 0)},
             {"name": "B", "location": (1, 1)},
             {"name": "C", "location": (2, 2)},
         ]
         result = await calculate_distances(activities)
-        self.assertEqual(len(result), 3)
+        self.assertEqual(result, {'A to B': 157.2495984740402, 'A to C': 314.47523947196964, 'B to C': 157.22564920708905}
+)
 
     async def test_get_location_details(self):
         with patch("httpx.AsyncClient") as MockClient:
@@ -42,19 +41,20 @@ class TestFunctions(unittest.IsolatedAsyncioTestCase):
             )
             details = await get_location_details("1")
             self.assertEqual(details["name"], "Test Location")
+            self.assertEqual(details["website"], "example.com")
 
     def test_get_iata_code(self):
         conn = sqlite3.connect("IATA_Codes.db")
         result = get_iata_code("Paris")
-        self.assertEqual(result[0][0], "CDG")  # Assuming CDG is the IATA code for Paris
+        self.assertEqual(result, [('PHT',), ('PRX',), ('LBG',), ('CDG',), ('ORY',)])
 
     def test_get_iata_codes_and_airports(self):
         conn = sqlite3.connect("IATA_Codes.db")
         result = get_iata_codes_and_airports("Tel Aviv")
-        self.assertEqual(result[0]["IATA code"], "TLV")  # Assuming TLV is the IATA code for Tel Aviv
+        self.assertEqual(result, [{'Name': 'Ben Gurion International Airport', 'IATA code': 'TLV'}, {'Name': 'Sde Dov Airport', 'IATA code': 'SDV'}])
 
     def test_format_trip_plan(self):
-        plan_text = "### Header **Bold Text** [link](http://example.com)"
+        plan_text = "### Header \n **Bold Text** [link](http://example.com)"
         formatted_text = format_trip_plan(plan_text)
         self.assertIn("<h3>Header</h3>", formatted_text)
         self.assertIn("<strong>Bold Text</strong>", formatted_text)
@@ -88,8 +88,35 @@ class TestFunctions(unittest.IsolatedAsyncioTestCase):
             }
         ]
         formatted_text = format_hotels_for_prompt(hotels_data)
+        print(formatted_text)
         self.assertIn("Hotel A", formatted_text)
 
+    async def test_get_hotel_info_success(self):
+        # Mock successful response
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"properties": ["Hotel1", "Hotel2"]}
+
+        # Patch the httpx.AsyncClient.get method to return the mock response
+        with patch.object(httpx.AsyncClient, 'get', return_value=mock_response):
+            properties = await get_hotel_info("New York", "2024-04-01", "2024-04-10")
+            assert properties == ["Hotel1", "Hotel2"], "Should return a list of properties"
+
+    async def test_get_activities_info_success(self):
+        # Mock successful responses for both URLs
+        mock_response_attractions = MagicMock()
+        mock_response_attractions.status_code = 200
+        mock_response_attractions.json.return_value = {"data": [{"location_id": "1", "name": "Attraction1"}]}
+
+        mock_response_restaurants = MagicMock()
+        mock_response_restaurants.status_code = 200
+        mock_response_restaurants.json.return_value = {"data": [{"location_id": "2", "name": "Restaurant1"}]}
+
+        # Patch the httpx.AsyncClient.get method to return the mock responses in sequence
+        with patch.object(httpx.AsyncClient, 'get', side_effect=[mock_response_attractions, mock_response_restaurants]):
+            combined_data, location_ids = await get_activities_info("Paris")
+            assert combined_data == [{"location_id": "1", "name": "Attraction1"}, {"location_id": "2", "name": "Restaurant1"}], "Should return combined data"
+            assert location_ids == ["1", "2"], "Should return a list of location_ids"
 
 if __name__ == "__main__":
     unittest.main()
