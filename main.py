@@ -1,9 +1,8 @@
 import json
-from fastapi import FastAPI, HTTPException, Query
-from haversine import haversine, Unit
-from fastapi.encoders import jsonable_encoder
-from playwright.async_api import async_playwright
-from pydantic import BaseModel
+import tempfile
+import webbrowser
+
+from haversine import haversine
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
@@ -11,10 +10,12 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
 import httpx
-import requests
 import logging
 import sqlite3
+import re
+from datetime import datetime
 
+dateformat = "%Y-%m-%d"
 load_dotenv()
 
 # Configure the logging system
@@ -24,7 +25,7 @@ logging.basicConfig(filename='data.log', level=logging.DEBUG,
 client = OpenAI(
     api_key=os.environ.get("OPENAI_API_KEY"),
 )
-
+### functions that uses openai API: ###
 # generate photo for the trip html page
 def generate_photo_for_html(destination):
     response = client.images.generate(
@@ -48,7 +49,10 @@ def get_trip_suggestions(client, prompt):
                                     "brief list of the flights and show to me what is the best flight based on the data i "
                                     "provided. then do the same for the hotels i provided. Then write a"
                                     "detailed plan for each day and consider the budget i have left after "
-                                    "the flight and hotel. use the attractions i provided from tripadvisor and the nearby places in the hotel info to create a detailed plan for each "
+                                    "the flight and hotel and also take into considaration the arrival time of the "
+                                    "flight in your plan for the first day. use the attractions i provided from "
+                                    "tripadvisor and the nearby places in the hotel info to create a detailed plan "
+                                    "for each"
                                     "day, and for each attraction add the website i provided. use all the budget and "
                                     "tell me recommendations for events and activities i"
                                     "can do in the destination and also include shopping and dining. use the data in the how to arrange the activities to know which activities are close to each other and can be done in the same day. "
@@ -62,7 +66,48 @@ def get_trip_suggestions(client, prompt):
     )
     return chat_completion.choices[0].message.content
 
+async def get_top_hotels(client, hotels_data):
+    # Use the extract_hotel_data function to extract hotel information
+    extracted_data = extract_hotel_data(hotels_data)
 
+    # Format the extracted hotel data for the prompt
+    prompt_text = format_hotels_for_prompt(extracted_data)
+
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": "This is the hotels list I have gathered so far. Write me a list of the top hotels and the info on each hotel you got.\n" + prompt_text
+            }
+        ],
+        model="gpt-3.5-turbo",
+    )
+    return chat_completion.choices[0].message.content
+
+async def generate_genral_activities(client, distances, days):
+    formatted_distances = json.dumps(distances, indent=2)  # Convert the dictionary to a JSON string for readability
+    content = (
+        "I have this list of activities and the distances in km between each activity. Write a new "
+        "list that is divided into {days} days. And in each day, write to me which attractions and "
+        "restaurants to go to. I need you to also take into account the distances so we won't have too "
+        "long trips. Also, don't repeat attractions on separate days. Don't assume any activity as a "
+        "starting point. Just give the plan and also try to combine restaurants and attractions. If "
+        "there is a bit of travel that's also ok; we don't need the closest attractions each "
+        "day.\n{distances}"
+    ).format(days=days, distances=formatted_distances)
+
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": content
+            }
+        ],
+        model="gpt-3.5-turbo",
+    )
+    return chat_completion.choices[0].message.content
+
+### functions that uses serpAPI: ###
 async def get_flights_info(departure_id: str, arrival_id: str, outbound_date: str, return_date: str):
     serpapi_params = {
         "departure_id": departure_id,
@@ -105,6 +150,77 @@ async def get_hotel_info(destination, check_in_date, check_out_date):
                                 detail=f"Failed to fetch hotel data from SerpApi: {response.text}")
 
 
+
+### functions that uses tripadvisor API: ###
+async def get_activities_info(destination):
+    key = os.environ.get("TRIPADVISOR_API_KEY")
+    headers = {"accept": "application/json"}
+    combined_data = []
+    location_ids = []
+
+    # URLs for attractions and restaurants
+    urls = [
+        f"https://api.content.tripadvisor.com/api/v1/location/search?key={key}&searchQuery={destination}&category=attractions&language=en",
+        f"https://api.content.tripadvisor.com/api/v1/location/search?key={key}&searchQuery={destination}&category=restaurants&language=en"
+    ]
+
+    async with httpx.AsyncClient() as client:
+        for url in urls:
+            response = await client.get(url, headers=headers)
+            if response.status_code == 200:
+                data = response.json().get("data", [])
+                combined_data.extend(data)
+                location_ids.extend([item["location_id"] for item in data])
+
+    return combined_data, location_ids
+
+async def get_location_details(location_id):
+    key = os.environ.get("TRIPADVISOR_API_KEY")
+    url = f"https://api.content.tripadvisor.com/api/v1/location/{location_id}/details?language=en&currency=USD&key={key}"
+    headers = {"accept": "application/json"}
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url, headers=headers)
+        if response.status_code == 200:
+            details = response.json()
+            return dict(location_id=details["location_id"], name=details["name"],
+                        location=(float(details.get("latitude", 0)), float(details.get("longitude", 0))),
+                        website=details.get("website", "N/A"))
+        else:
+            print(f"Error fetching details for location ID {location_id}: {response.text}")
+
+### functions that extract data from our database: ###
+# Connect to SQLite database
+conn = sqlite3.connect('IATA_Codes.db')
+
+def get_iata_code(city_name):
+    cursor = conn.cursor()
+    # Updated query to match the specified format
+    cursor.execute("SELECT IATA_code FROM IATA_Codes WHERE LOWER(Municipality) = LOWER(?)", (city_name,))
+    result = cursor.fetchall()
+    return result if result else None
+
+def get_iata_codes_and_airports(city_name):
+    cursor = conn.cursor()
+    query = "SELECT aiport_name, IATA_code FROM IATA_Codes WHERE LOWER(Municipality) = LOWER(?)"
+    cursor.execute(query, (city_name,))
+    results = cursor.fetchall()
+    return [{"Name": name, "IATA code": code} for name, code in results]
+
+### functions that format the data text or for the html page: ###
+def format_trip_plan(plan_text):
+    # Replace ### with <h3> tags
+    plan_text = re.sub(r'###\s*(.*?)\s*\n', r'<h3>\1</h3><br>', plan_text)
+
+    # Replace ** with <strong> tags
+    plan_text = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', plan_text)
+
+    # Updated URL pattern to exclude closing parenthesis
+    url_pattern = r'(http[s]?://[^\s\)]+)'
+    plan_text = re.sub(url_pattern, r'<a href="\1" style="color:black;">\1</a>', plan_text)
+
+    return plan_text
+
 def extract_hotel_data(hotels_data):
     # Initialize a list to hold the extracted data
     extracted_data = []
@@ -141,75 +257,6 @@ def format_hotels_for_prompt(hotels_data):
 
     return hotels_string
 
-
-async def get_top_hotels(client, hotels_data):
-    # Use the extract_hotel_data function to extract hotel information
-    extracted_data = extract_hotel_data(hotels_data)
-
-    # Format the extracted hotel data for the prompt
-    prompt_text = format_hotels_for_prompt(extracted_data)
-
-    chat_completion = client.chat.completions.create(
-        messages=[
-            {
-                "role": "user",
-                "content": "This is the hotels list I have gathered so far. Write me a list of the top hotels and the info on each hotel you got.\n" + prompt_text
-            }
-        ],
-        model="gpt-3.5-turbo",
-    )
-    return chat_completion.choices[0].message.content
-
-"""
-async def get_activities_info(destination):
-    key = os.environ.get("TRIPADVISOR_API_KEY")
-    url = f"https://api.content.tripadvisor.com/api/v1/location/search?key={key}&searchQuery={destination}&category=attractions&language=en"
-    url2 = f"https://api.content.tripadvisor.com/api/v1/location/search?key={key}&searchQuery={destination}&category=restaurants&language=en"
-    headers = {"accept": "application/json"}
-
-    response = requests.get(url, headers=headers)
-    response2 = requests.get(url2, headers=headers)
-    return response.text + "\n" + response2.text"""
-
-async def get_activities_info(destination):
-    key = os.environ.get("TRIPADVISOR_API_KEY")
-    headers = {"accept": "application/json"}
-    combined_data = []
-    location_ids = []
-
-    # URLs for attractions and restaurants
-    urls = [
-        f"https://api.content.tripadvisor.com/api/v1/location/search?key={key}&searchQuery={destination}&category=attractions&language=en",
-        f"https://api.content.tripadvisor.com/api/v1/location/search?key={key}&searchQuery={destination}&category=restaurants&language=en"
-    ]
-
-    async with httpx.AsyncClient() as client:
-        for url in urls:
-            response = await client.get(url, headers=headers)
-            if response.status_code == 200:
-                data = response.json().get("data", [])
-                combined_data.extend(data)
-                location_ids.extend([item["location_id"] for item in data])
-
-    return combined_data, location_ids
-
-
-async def get_location_details(location_id):
-    key = os.environ.get("TRIPADVISOR_API_KEY")
-    url = f"https://api.content.tripadvisor.com/api/v1/location/{location_id}/details?language=en&currency=USD&key={key}"
-    headers = {"accept": "application/json"}
-
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url, headers=headers)
-        if response.status_code == 200:
-            details = response.json()
-            return dict(location_id=details["location_id"], name=details["name"],
-                        location=(float(details.get("latitude", 0)), float(details.get("longitude", 0))),
-                        website=details.get("website", "N/A"))
-        else:
-            print(f"Error fetching details for location ID {location_id}: {response.text}")
-
-
 class TripDescription(BaseModel):
     origin: str
     origin_iata: str
@@ -219,45 +266,7 @@ class TripDescription(BaseModel):
     start_date: str
     end_date: str
 
-
-# Connect to your SQLite database
-conn = sqlite3.connect('IATA_Codes.db')
-
-
-def get_iata_code(city_name):
-    cursor = conn.cursor()
-    # Updated query to match the specified format
-    cursor.execute("SELECT IATA_code FROM IATA_Codes WHERE LOWER(Municipality) = LOWER(?)", (city_name,))
-    result = cursor.fetchall()
-    return result if result else None
-
-
-async def generate_genral_activities(client, distances, days):
-    formatted_distances = json.dumps(distances, indent=2)  # Convert the dictionary to a JSON string for readability
-    content = (
-        "I have this list of activities and the distances in km between each activity. Write a new "
-        "list that is divided into {days} days. And in each day, write to me which attractions and "
-        "restaurants to go to. I need you to also take into account the distances so we won't have too "
-        "long trips. Also, don't repeat attractions on separate days. Don't assume any activity as a "
-        "starting point. Just give the plan and also try to combine restaurants and attractions. If "
-        "there is a bit of travel that's also ok; we don't need the closest attractions each "
-        "day.\n{distances}"
-    ).format(days=days, distances=formatted_distances)
-
-    chat_completion = client.chat.completions.create(
-        messages=[
-            {
-                "role": "user",
-                "content": content
-            }
-        ],
-        model="gpt-3.5-turbo",
-    )
-    return chat_completion.choices[0].message.content
-
-
-from datetime import datetime
-dateformat = "%Y-%m-%d"
+### main functions that gather all the data to create the trip plan: ###
 async def gather_data(trip: TripDescription):
     # Convert trip origin and destination names to IATA codes
     if not trip.origin_iata:
@@ -287,7 +296,6 @@ async def gather_data(trip: TripDescription):
 
     location_based_activities = await generate_genral_activities(client, distances, str(num_days))
 
-
     # print(activities_info)
 
     data = f"""
@@ -301,14 +309,6 @@ async def gather_data(trip: TripDescription):
     activities websites: {activities_details}
     """
     return data.strip()
-
-
-def get_iata_codes_and_airports(city_name):
-    cursor = conn.cursor()
-    query = "SELECT aiport_name, IATA_code FROM IATA_Codes WHERE LOWER(Municipality) = LOWER(?)"
-    cursor.execute(query, (city_name,))
-    results = cursor.fetchall()
-    return [{"Name": name, "IATA code": code} for name, code in results]
 
 
 async def calculate_distances(activities):
@@ -328,15 +328,13 @@ async def calculate_distances(activities):
     return distances
 
 
+### fastAPI: ###
 app = FastAPI()
 
 
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
-
-
-app = FastAPI()
 
 @app.get("/test-activities/")
 async def test_activities(destination: str = Query(..., title="Destination", description="The destination to fetch activities for")):
@@ -382,6 +380,7 @@ async def get_trip_plan(trip: TripDescription):
     # Configure the logging system
     logging.info(data)
     trip_plan = get_trip_suggestions(client, data)  # convert the trip plan to string
+    trip_plan = format_trip_plan(trip_plan)
     trip_plan_html = trip_plan.replace("\n", "<br>")
     # data = data.replace("\n", "<br>")
 
@@ -489,7 +488,7 @@ async def get_trip_plan(trip: TripDescription):
     <div class="trip-details">
                 <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title"></h5>
+                    <h5 class="card-title"> if you liked the plan, click ctrl+s to save the plan to your device</h5>
                 </div>
             </div>
     </div>
@@ -499,9 +498,12 @@ async def get_trip_plan(trip: TripDescription):
     </html>
     """
 
-    file_path = '/Users/tomerjuster/Desktop/Final Project Software Development Using AI/trip_plan.html'  # Specify the path where you want to save the HTML file
+    # Generate a temporary file to store the HTML content
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.html') as file:
+        file.write(html_content.encode('utf-8'))
+        file_path = file.name
 
-    with open(file_path, 'w') as file:
-        file.write(html_content)
+    # Open the temporary HTML file in the default browser
+    webbrowser.open('file://' + file_path)
 
     return HTMLResponse(content=html_content)
