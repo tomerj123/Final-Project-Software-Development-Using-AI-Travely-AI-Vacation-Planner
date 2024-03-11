@@ -1,12 +1,15 @@
+import json
 from fastapi import FastAPI, HTTPException, Query
+from haversine import haversine, Unit
 from fastapi.encoders import jsonable_encoder
 from playwright.async_api import async_playwright
 from pydantic import BaseModel
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
-from flights import run
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi import FastAPI, HTTPException, Query
+from pydantic import BaseModel
 import httpx
 import requests
 import logging
@@ -22,7 +25,7 @@ client = OpenAI(
     api_key=os.environ.get("OPENAI_API_KEY"),
 )
 
-
+# generate photo for the trip html page
 def generate_photo_for_html(destination):
     response = client.images.generate(
         model="dall-e-3",
@@ -34,7 +37,7 @@ def generate_photo_for_html(destination):
     image_url = response.data[0].url
     return image_url
 
-
+#use all the data we gathered so far to create a detailed plan for the trip using openai API
 def get_trip_suggestions(client, prompt):
     chat_completion = client.chat.completions.create(
         messages=[
@@ -46,8 +49,9 @@ def get_trip_suggestions(client, prompt):
                                     "provided. then do the same for the hotels i provided. Then write a"
                                     "detailed plan for each day and consider the budget i have left after "
                                     "the flight and hotel. use the attractions i provided from tripadvisor and the nearby places in the hotel info to create a detailed plan for each "
-                                    "day. use all the budget and tell me recommendations for events and activities i "
-                                    "can do in the destination and also include shopping and dining."
+                                    "day, and for each attraction add the website i provided. use all the budget and "
+                                    "tell me recommendations for events and activities i"
+                                    "can do in the destination and also include shopping and dining. use the data in the how to arrange the activities to know which activities are close to each other and can be done in the same day. "
                                     "i also want to mention that i will put this plan in my html page here: <div "
                                     "class=trip-plan>{trip_plan_html}</div> so please make the format of the plan in "
                                     "a way that will look good in the html page. (i.e if you want to make some text bold then use <b> tag and not **bold**)."
@@ -228,7 +232,32 @@ def get_iata_code(city_name):
     return result if result else None
 
 
+async def generate_genral_activities(client, distances, days):
+    formatted_distances = json.dumps(distances, indent=2)  # Convert the dictionary to a JSON string for readability
+    content = (
+        "I have this list of activities and the distances in km between each activity. Write a new "
+        "list that is divided into {days} days. And in each day, write to me which attractions and "
+        "restaurants to go to. I need you to also take into account the distances so we won't have too "
+        "long trips. Also, don't repeat attractions on separate days. Don't assume any activity as a "
+        "starting point. Just give the plan and also try to combine restaurants and attractions. If "
+        "there is a bit of travel that's also ok; we don't need the closest attractions each "
+        "day.\n{distances}"
+    ).format(days=days, distances=formatted_distances)
 
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": content
+            }
+        ],
+        model="gpt-3.5-turbo",
+    )
+    return chat_completion.choices[0].message.content
+
+
+from datetime import datetime
+dateformat = "%Y-%m-%d"
 async def gather_data(trip: TripDescription):
     # Convert trip origin and destination names to IATA codes
     if not trip.origin_iata:
@@ -247,7 +276,17 @@ async def gather_data(trip: TripDescription):
     activities_info, activities_location_ids = await get_activities_info(trip.destination)
     activities_details = []
     for location_id in activities_location_ids:
-        activities_details += await get_location_details(location_id)
+        activity_details = await get_location_details(location_id)
+        if activity_details:
+            activities_details.append(activity_details)
+
+    distances = await calculate_distances(activities_details)
+    start_date = datetime.strptime(trip.start_date, dateformat)
+    end_date = datetime.strptime(trip.end_date, dateformat)
+    num_days = (end_date - start_date).days
+
+    location_based_activities = await generate_genral_activities(client, distances, str(num_days))
+
 
     # print(activities_info)
 
@@ -257,7 +296,9 @@ async def gather_data(trip: TripDescription):
     Dates: From {trip.start_date} to {trip.end_date}
     Flights Info: {flights_info}
     Accommodation Info: {top_hotels}
+    how to arrange the activities: {location_based_activities}
     Activities Info: {activities_info}
+    activities websites: {activities_details}
     """
     return data.strip()
 
@@ -269,7 +310,7 @@ def get_iata_codes_and_airports(city_name):
     results = cursor.fetchall()
     return [{"Name": name, "IATA code": code} for name, code in results]
 
-from haversine import haversine, Unit
+
 async def calculate_distances(activities):
     distances = {}
     for i in range(len(activities)):
@@ -294,9 +335,7 @@ app = FastAPI()
 def read_root():
     return {"Hello": "World"}
 
-from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+
 app = FastAPI()
 
 @app.get("/test-activities/")
@@ -450,7 +489,7 @@ async def get_trip_plan(trip: TripDescription):
     <div class="trip-details">
                 <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">full trip data can be found in the log file</h5>
+                    <h5 class="card-title"></h5>
                 </div>
             </div>
     </div>
