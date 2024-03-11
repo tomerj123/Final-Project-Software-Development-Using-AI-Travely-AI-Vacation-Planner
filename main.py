@@ -1,12 +1,11 @@
 import json
 import tempfile
 import webbrowser
-
 from haversine import haversine
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
 import httpx
@@ -25,6 +24,8 @@ logging.basicConfig(filename='data.log', level=logging.DEBUG,
 client = OpenAI(
     api_key=os.environ.get("OPENAI_API_KEY"),
 )
+
+
 ### functions that uses openai API: ###
 # generate photo for the trip html page
 def generate_photo_for_html(destination):
@@ -38,8 +39,9 @@ def generate_photo_for_html(destination):
     image_url = response.data[0].url
     return image_url
 
-#use all the data we gathered so far to create a detailed plan for the trip using openai API
-def get_trip_suggestions(client, prompt):
+
+# use all the data we gathered so far to create a detailed plan for the trip using openai API
+async def get_trip_suggestions(client, prompt):
     chat_completion = client.chat.completions.create(
         messages=[
             {
@@ -49,22 +51,24 @@ def get_trip_suggestions(client, prompt):
                                     "brief list of the flights and show to me what is the best flight based on the data i "
                                     "provided. then do the same for the hotels i provided. Then write a"
                                     "detailed plan for each day and consider the budget i have left after "
-                                    "the flight and hotel and also take into considaration the arrival time of the "
+                                    "the flight and hotel and also take into consideration the arrival time of the "
                                     "flight in your plan for the first day. use the attractions i provided from "
                                     "tripadvisor and the nearby places in the hotel info to create a detailed plan "
-                                    "for each"
-                                    "day, and for each attraction add the website i provided. use all the budget and "
+                                    "for each day, and for each attraction add the website i provided. use all the budget and "
                                     "tell me recommendations for events and activities i"
-                                    "can do in the destination and also include shopping and dining. use the data in the how to arrange the activities to know which activities are close to each other and can be done in the same day. "
-                                    "i also want to mention that i will put this plan in my html page here: <div "
+                                    "can do in the destination and also include shopping and dining. use the data in "
+                                    "the how to arrange the activities to know which activities are close to each "
+                                    "other and can be done in the same day."
+                                    "i also want to mention that i will put this plan in my html page in: <div "
                                     "class=trip-plan>{trip_plan_html}</div> so please make the format of the plan in "
-                                    "a way that will look good in the html page. (i.e if you want to make some text bold then use <b> tag and not **bold**)."
+                                    "a way that will look good for my html page. (i.e when you write some text in bold then use <b></b> tag and not **bold**)."
             }
         ],
         model="gpt-4-0125-preview",
         # model="gpt-3.5-turbo",
     )
     return chat_completion.choices[0].message.content
+
 
 async def get_top_hotels(client, hotels_data):
     # Use the extract_hotel_data function to extract hotel information
@@ -83,6 +87,7 @@ async def get_top_hotels(client, hotels_data):
         model="gpt-3.5-turbo",
     )
     return chat_completion.choices[0].message.content
+
 
 async def generate_genral_activities(client, distances, days):
     formatted_distances = json.dumps(distances, indent=2)  # Convert the dictionary to a JSON string for readability
@@ -106,6 +111,7 @@ async def generate_genral_activities(client, distances, days):
         model="gpt-3.5-turbo",
     )
     return chat_completion.choices[0].message.content
+
 
 ### functions that uses serpAPI: ###
 async def get_flights_info(departure_id: str, arrival_id: str, outbound_date: str, return_date: str):
@@ -150,7 +156,6 @@ async def get_hotel_info(destination, check_in_date, check_out_date):
                                 detail=f"Failed to fetch hotel data from SerpApi: {response.text}")
 
 
-
 ### functions that uses tripadvisor API: ###
 async def get_activities_info(destination):
     key = os.environ.get("TRIPADVISOR_API_KEY")
@@ -174,6 +179,7 @@ async def get_activities_info(destination):
 
     return combined_data, location_ids
 
+
 async def get_location_details(location_id):
     key = os.environ.get("TRIPADVISOR_API_KEY")
     url = f"https://api.content.tripadvisor.com/api/v1/location/{location_id}/details?language=en&currency=USD&key={key}"
@@ -189,9 +195,11 @@ async def get_location_details(location_id):
         else:
             print(f"Error fetching details for location ID {location_id}: {response.text}")
 
+
 ### functions that extract data from our database: ###
 # Connect to SQLite database
 conn = sqlite3.connect('IATA_Codes.db')
+
 
 def get_iata_code(city_name):
     cursor = conn.cursor()
@@ -200,6 +208,7 @@ def get_iata_code(city_name):
     result = cursor.fetchall()
     return result if result else None
 
+
 def get_iata_codes_and_airports(city_name):
     cursor = conn.cursor()
     query = "SELECT aiport_name, IATA_code FROM IATA_Codes WHERE LOWER(Municipality) = LOWER(?)"
@@ -207,19 +216,25 @@ def get_iata_codes_and_airports(city_name):
     results = cursor.fetchall()
     return [{"Name": name, "IATA code": code} for name, code in results]
 
+
 ### functions that format the data text or for the html page: ###
 def format_trip_plan(plan_text):
     # Replace ### with <h3> tags
     plan_text = re.sub(r'###\s*(.*?)\s*\n', r'<h3>\1</h3><br>', plan_text)
 
     # Replace ** with <strong> tags
-    plan_text = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', plan_text)
+    plan_text = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong><br>', plan_text)
 
-    # Updated URL pattern to exclude closing parenthesis
-    url_pattern = r'(http[s]?://[^\s\)]+)'
+    # Updated URL pattern to exclude closing parenthesis and existing <a> tags
+    url_pattern = r'(?<!href=")(http[s]?://[^\s\)]+)(?!"[>])'
     plan_text = re.sub(url_pattern, r'<a href="\1" style="color:black;">\1</a>', plan_text)
 
+    # Correcting double <a> tags if present
+    double_a_tag_pattern = r'<a href=\'<a href="([^"]+)" style="color:black;">[^<]+</a>\' style="color:black;">[^<]+</a>'
+    plan_text = re.sub(double_a_tag_pattern, r'<a href="\1" style="color:black;">\1</a>', plan_text)
+
     return plan_text
+
 
 def extract_hotel_data(hotels_data):
     # Initialize a list to hold the extracted data
@@ -244,7 +259,8 @@ def extract_hotel_data(hotels_data):
     # Return the list of extracted data
     return extracted_data
 
-#convert the hotel data to a string that can be used in the prompt
+
+# convert the hotel data to a string that can be used in the prompt
 def format_hotels_for_prompt(hotels_data):
     # Initialize an empty string to hold the formatted hotel information
     hotels_string = ""
@@ -257,6 +273,7 @@ def format_hotels_for_prompt(hotels_data):
 
     return hotels_string
 
+
 class TripDescription(BaseModel):
     origin: str
     origin_iata: str
@@ -265,6 +282,7 @@ class TripDescription(BaseModel):
     budget: int
     start_date: str
     end_date: str
+
 
 ### main functions that gather all the data to create the trip plan: ###
 async def gather_data(trip: TripDescription):
@@ -336,8 +354,10 @@ app = FastAPI()
 def read_root():
     return {"Hello": "World"}
 
+
 @app.get("/test-activities/")
-async def test_activities(destination: str = Query(..., title="Destination", description="The destination to fetch activities for")):
+async def test_activities(
+        destination: str = Query(..., title="Destination", description="The destination to fetch activities for")):
     try:
         activities_info, ids = await get_activities_info(destination)
         activities_details = []
@@ -351,6 +371,7 @@ async def test_activities(destination: str = Query(..., title="Destination", des
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"An error occurred: {str(e)}")
 
+
 @app.get("/test-flights/")
 async def test_get_flights_info(departure_id: str = Query(..., title="Departure IATA Code"),
                                 arrival_id: str = Query(..., title="Arrival IATA Code"),
@@ -361,8 +382,11 @@ async def test_get_flights_info(departure_id: str = Query(..., title="Departure 
         return {"best_flights": best_flights}
     except HTTPException as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail)
+
+
 @app.get("/select-airport/")
-async def select_airport(city_name: str = Query(..., title="City Name", description="Type the name of the city to get the IATA codes for the airpots")):
+async def select_airport(city_name: str = Query(..., title="City Name",
+                                                description="Type the name of the city to get the IATA codes for the airpots")):
     airports = get_iata_codes_and_airports(city_name)
     if not airports:
         raise HTTPException(status_code=404, detail="No airports found for the given city")
@@ -379,7 +403,7 @@ async def get_trip_plan(trip: TripDescription):
     data = await gather_data(trip)
     # Configure the logging system
     logging.info(data)
-    trip_plan = get_trip_suggestions(client, data)  # convert the trip plan to string
+    trip_plan = await get_trip_suggestions(client, data)  # convert the trip plan to string
     trip_plan = format_trip_plan(trip_plan)
     trip_plan_html = trip_plan.replace("\n", "<br>")
 

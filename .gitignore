@@ -1,1 +1,5 @@
 .env
+readme.txt
+.idea/.name
+/.idea
+/__pycache__
