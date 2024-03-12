@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 from unittest.mock import AsyncMock
 import sqlite3
 
-from main import (
+from app.main import (
     calculate_distances,
     get_location_details,
     get_iata_code,
@@ -44,12 +44,12 @@ class TestFunctions(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(details["website"], "example.com")
 
     def test_get_iata_code(self):
-        conn = sqlite3.connect("IATA_Codes.db")
+        conn = sqlite3.connect("app/IATA_Codes.db")
         result = get_iata_code("Paris")
         self.assertEqual(result, [('PHT',), ('PRX',), ('LBG',), ('CDG',), ('ORY',)])
 
     def test_get_iata_codes_and_airports(self):
-        conn = sqlite3.connect("IATA_Codes.db")
+        conn = sqlite3.connect("app/IATA_Codes.db")
         result = get_iata_codes_and_airports("Tel Aviv")
         self.assertEqual(result, [{'Name': 'Ben Gurion International Airport', 'IATA code': 'TLV'}, {'Name': 'Sde Dov Airport', 'IATA code': 'SDV'}])
 

@@ -4,7 +4,7 @@ import webbrowser
 from haversine import haversine
 from openai import OpenAI
 import os
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 from fastapi.responses import HTMLResponse
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
@@ -15,10 +15,10 @@ import re
 from datetime import datetime
 
 dateformat = "%Y-%m-%d"
-load_dotenv()
+#load_dotenv()
 
 # Configure the logging system
-logging.basicConfig(filename='data.log', level=logging.DEBUG,
+logging.basicConfig(filename='../data.log', level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
 client = OpenAI(
@@ -198,10 +198,11 @@ async def get_location_details(location_id):
 
 ### functions that extract data from our database: ###
 # Connect to SQLite database
-conn = sqlite3.connect('IATA_Codes.db')
+#conn = sqlite3.connect('IATA_Codes.db')
 
 
 def get_iata_code(city_name):
+    conn = sqlite3.connect('./IATA_Codes.db')
     cursor = conn.cursor()
     # Updated query to match the specified format
     cursor.execute("SELECT IATA_code FROM IATA_Codes WHERE LOWER(Municipality) = LOWER(?)", (city_name,))
@@ -210,6 +211,7 @@ def get_iata_code(city_name):
 
 
 def get_iata_codes_and_airports(city_name):
+    conn = sqlite3.connect('./IATA_Codes.db')
     cursor = conn.cursor()
     query = "SELECT aiport_name, IATA_code FROM IATA_Codes WHERE LOWER(Municipality) = LOWER(?)"
     cursor.execute(query, (city_name,))
@@ -385,8 +387,7 @@ async def test_get_flights_info(departure_id: str = Query(..., title="Departure 
 
 
 @app.get("/select-airport/")
-async def select_airport(city_name: str = Query(..., title="City Name",
-                                                description="Type the name of the city to get the IATA codes for the airpots")):
+async def select_airport(city_name: str = Query(..., title="City Name", description="Type the name of the city to get the IATA codes for the airpots")):
     airports = get_iata_codes_and_airports(city_name)
     if not airports:
         raise HTTPException(status_code=404, detail="No airports found for the given city")
