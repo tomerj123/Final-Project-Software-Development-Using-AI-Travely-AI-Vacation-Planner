@@ -1,2 +1,0 @@
-2024-03-12 21:33:20,204 - DEBUG - load_ssl_context verify=True cert=None trust_env=True http2=False
-2024-03-12 21:33:20,205 - DEBUG - load_verify_locations cafile='D:\\Python\\lib\\site-packages\\certifi\\cacert.pem'
