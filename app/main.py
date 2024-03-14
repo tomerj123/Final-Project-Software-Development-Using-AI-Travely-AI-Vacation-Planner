@@ -4,7 +4,6 @@ import webbrowser
 from haversine import haversine
 from openai import OpenAI
 import os
-#from dotenv import load_dotenv
 from fastapi.responses import HTMLResponse
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
@@ -16,8 +15,6 @@ import re
 from datetime import datetime
 
 dateformat = "%Y-%m-%d"
-#load_dotenv()
-
 
 
 # Create a logger
@@ -26,7 +23,7 @@ logger.setLevel(logging.DEBUG)  # Set the logging level to DEBUG
 
 # Create a rotating file handler
 log_handler = RotatingFileHandler(
-    '../data.log', maxBytes=10*1024*1024, backupCount=5
+    '../data.log', maxBytes=10 * 1024 * 1024, backupCount=5
 )
 log_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 
@@ -58,25 +55,24 @@ async def get_trip_suggestions(client, prompt):
         messages=[
             {
                 "role": "user",
-                "content": prompt + ". this is all the data that i have gathered so far about the trip im planning. "
-                                    "please help me to create a detailed plan for the trip based on this data. write "
-                                    "brief list of the flights and show to me what is the best flight based on the data i "
-                                    "provided. then do the same for the hotels i provided. Then write a"
-                                    "detailed plan for each day and consider the budget i have left after "
-                                    "the flight and hotel and also take into consideration the arrival time of the "
-                                    "flight in your plan for the first day. use the attractions i provided from "
-                                    "tripadvisor and the nearby places in the hotel info to create a detailed plan "
-                                    "for each day, and for each attraction add the website i provided. use all the budget and "
-                                    "tell me recommendations for events and activities i"
-                                    "can do in the destination and also include shopping and dining. use the data in "
-                                    "the how to arrange the activities to know which activities are close to each "
-                                    "other and can be done in the same day."
-                                    "i also want to mention that i will put this plan in my html page in: <div "
-                                    "class=trip-plan>{trip_plan_html}</div> so please make the format of the plan in "
-                                    "a way that will look good for my html page. (i.e when you write some text in bold then use <b></b> tag and not **bold**)."
+                "content": prompt + "I'm planning a trip and need a detailed plan based on this information. Please "
+                                    "create a comprehensive trip plan that includes in this order:"
+                            "1. The best flight option considering price and timing."
+                            "2. Top 3 hotel recommendations based on the data."
+                            "3. show now the budget that was left after the flight and hotel"
+                            "4. A day-by-day itinerary that: (in the first day take into account the arrival time of the flight in the planning)"
+                            "- Allocates activities and attractions based on their proximity (using the data)."
+                            "- Suggests dining options near each activity or attraction."
+                            "- Utilizes the budget effectively, considering the cost of flights and accommodation."
+                            "- Incorporates free time for shopping and exploration."
+                            "- Include addresses and websites of attractions"
+                            "4. Ensure all recommendations are presented in a way that will be visually appealing on a webpage, using HTML formatting where appropriate (e.g., <b> for bold)."
+
+                            "Summarize the trip plan, ensuring it is well-organized and includes all relevant details."
             }
         ],
         model="gpt-4-0125-preview",
+        temperature=0.4,
         # model="gpt-3.5-turbo",
     )
     return chat_completion.choices[0].message.content
@@ -209,9 +205,6 @@ async def get_location_details(location_id):
 
 
 ### functions that extract data from our database: ###
-# Connect to SQLite database
-#conn = sqlite3.connect('IATA_Codes.db')
-
 
 def get_iata_code(city_name):
     conn = sqlite3.connect('./IATA_Codes.db')
@@ -366,7 +359,9 @@ app = FastAPI()
 
 @app.get("/")
 def read_root():
-    return {"Hello, please enter http://tomerandsionefinalproject.eastus.azurecontainer.io/docs to access the full API features"}
+    return {
+        "Hello, please enter http://tomerandsionefinalproject.eastus.azurecontainer.io/docs to access the full API features"}
+
 
 @app.get("/search-for-your-preferred-airports/")
 async def select_airports(
