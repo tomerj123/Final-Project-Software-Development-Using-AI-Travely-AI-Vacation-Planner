@@ -10,6 +10,7 @@ from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
 import httpx
 import logging
+from logging.handlers import RotatingFileHandler
 import sqlite3
 import re
 from datetime import datetime
@@ -17,9 +18,20 @@ from datetime import datetime
 dateformat = "%Y-%m-%d"
 #load_dotenv()
 
-# Configure the logging system
-logging.basicConfig(filename='../data.log', level=logging.DEBUG,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
+
+
+# Create a logger
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)  # Set the logging level to DEBUG
+
+# Create a rotating file handler
+log_handler = RotatingFileHandler(
+    '../data.log', maxBytes=10*1024*1024, backupCount=5
+)
+log_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+
+# Add the handler to the logger
+logger.addHandler(log_handler)
 
 client = OpenAI(
     api_key=os.environ.get("OPENAI_API_KEY"),
@@ -129,7 +141,7 @@ async def get_flights_info(departure_id: str, arrival_id: str, outbound_date: st
         response = await client.get("https://serpapi.com/search?engine=google_flights", params=serpapi_params)
 
         if response.status_code == 200:
-            return response.json()["best_flights"]
+            return response.json()
         else:
             print(f"Error: {response.text}")  # Print error message for debugging
             raise HTTPException(status_code=response.status_code,
@@ -354,49 +366,37 @@ app = FastAPI()
 
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
+    return {"Hello, please enter http://tomerandsionefinalproject.eastus.azurecontainer.io/docs to access the full API features"}
 
+@app.get("/search-for-your-preferred-airports/")
+async def select_airports(
+        origin_city: str = Query(..., title="Origin City",
+                                 description="Type the name of the origin city to get the IATA codes for the airports"),
+        destination_city: str = Query(..., title="Destination City",
+                                      description="Type the name of the destination city to get the IATA codes for the airports")):
+    # Get airports for the origin city
+    origin_airports = get_iata_codes_and_airports(origin_city)
+    if not origin_airports:
+        raise HTTPException(status_code=404, detail=f"No airports found for the origin city: {origin_city}")
 
-@app.get("/test-activities/")
-async def test_activities(
-        destination: str = Query(..., title="Destination", description="The destination to fetch activities for")):
-    try:
-        activities_info, ids = await get_activities_info(destination)
-        activities_details = []
-        for location_id in ids:
-            detail = await get_location_details(location_id)
-            if detail:  # Ensure detail is not None and has 'name' and 'location'
-                # Append the detail dict as-is, assuming it has 'name' and 'location'
-                activities_details.append(detail)
-        distances = await calculate_distances(activities_details)
-        return distances
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"An error occurred: {str(e)}")
+    # Get airports for the destination city
+    destination_airports = get_iata_codes_and_airports(destination_city)
+    if not destination_airports:
+        raise HTTPException(status_code=404, detail=f"No airports found for the destination city: {destination_city}")
 
+    # Prepare the response
+    response = {
+        "origin_city": {
+            "city_name": origin_city,
+            "airports": origin_airports
+        },
+        "destination_city": {
+            "city_name": destination_city,
+            "airports": destination_airports
+        }
+    }
 
-@app.get("/test-flights/")
-async def test_get_flights_info(departure_id: str = Query(..., title="Departure IATA Code"),
-                                arrival_id: str = Query(..., title="Arrival IATA Code"),
-                                outbound_date: str = Query(..., title="Outbound Date"),
-                                return_date: str = Query(..., title="Return Date")):
-    try:
-        best_flights = await get_flights_info(departure_id, arrival_id, outbound_date, return_date)
-        return {"best_flights": best_flights}
-    except HTTPException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.detail)
-
-
-@app.get("/select-airport/")
-async def select_airport(city_name: str = Query(..., title="City Name", description="Type the name of the city to get the IATA codes for the airpots")):
-    airports = get_iata_codes_and_airports(city_name)
-    if not airports:
-        raise HTTPException(status_code=404, detail="No airports found for the given city")
-    elif len(airports) == 1:
-        # If there's only one airport, return its IATA code
-        return {"city_name": city_name, "iata_code": airports[0][1]}
-    else:
-        # Return a list of airports for the user to choose from
-        return {"city_name": city_name, "airports": airports}
+    return response
 
 
 @app.post("/plan-trip/", response_class=HTMLResponse)
