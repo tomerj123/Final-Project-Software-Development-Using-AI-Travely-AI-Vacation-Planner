@@ -8,6 +8,11 @@ jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
     steps:
+      - name: 'Login via Azure CLI'
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - run: az container list --resource-group AIfinalProject
       - run: docker login tomerfinalprojectai.azurecr.io -u tomerfinalprojectai -p ${{ secrets.ACR_PASSWORD }}
       - run: echo "yoyo"
       - name: Set up Docker Buildx
@@ -15,8 +20,6 @@ jobs:
       - name: Build no push
         uses: docker/build-push-action@v5
         with:
-              push: false
-              load: true
-              tags: shimon/abc
+              tags: tomerfinalprojectai.azurecr.io/projectimage:latest
       - run: docker images
       - run: echo "yoyo"
