@@ -13,7 +13,7 @@ import requests
 import logging
 
 load_dotenv()
-
+app = FastAPI()
 # Configure the logging system
 logging.basicConfig(filename='data.log', level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s')
@@ -142,6 +142,7 @@ def get_top_hotels(client, hotels_data):
     return chat_completion.choices[0].message.content
 
 
+@app.get("/get-activities-info/{destination}")
 async def get_activities_info(destination):
     key = os.environ.get("TRIPADVISOR_API_KEY")
     url = f"https://api.content.tripadvisor.com/api/v1/location/search?key={key}&searchQuery={destination}&category=attractions&language=en"
@@ -186,7 +187,6 @@ async def gather_data(trip: TripDescription):
     hotels_info = await get_hotel_info(trip.destination, trip.start_date, trip.end_date)
     top_hotels = get_top_hotels(client, hotels_info)
     activities_info = await get_activities_info(trip.destination)
-    print(activities_info)
 
     data = f"""
     Destination: {trip.destination}
@@ -199,7 +199,7 @@ async def gather_data(trip: TripDescription):
     return data.strip()
 
 
-app = FastAPI()
+
 
 
 @app.get("/")

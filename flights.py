@@ -120,21 +120,16 @@ def scrape_google_flights(soup):
             duration = flight.select_one('.gvkrdb.AdWm1c.tPgKwe.ogfYpf').get_text() if flight.select_one('.gvkrdb.AdWm1c.tPgKwe.ogfYpf') else None
 
             # Extracting departure and arrival airports using more specific selectors based on the provided snippets
-            departure_airport_div = flight.select_one('.ZHa2lc.tdMWuf.y52p7d')
-            departure_airport_name = departure_airport_div.get_text(strip=True) if departure_airport_div else None
-            airport_code_span = departure_airport_div.select_one('span[dir="ltr"]')
-            if airport_code_span:
-                departure_airport_code = airport_code_span.get_text(strip=True).strip('()')
+      
+
+            flight_info_div = flight.find('div', class_='JMc5Xc')
+            if flight_info_div:
+                flight_data = flight_info_div.get('aria-label')
             else:
-                departure_airport_code = None
-            # Extracting arrival airport name and code
-            arrival_airport_div = flight.select_one('.FY5t7d.tdMWuf.y52p7d')
-            arrival_airport_name = arrival_airport_div.get_text(strip=True) if arrival_airport_div else None
-            airport_code_span = arrival_airport_div.select_one('span[dir="ltr"]')
-            if airport_code_span:
-                arrival_airport_code = airport_code_span.get_text(strip=True).strip('()')
-            else:
-                arrival_airport_code = None
+                flight_data = None
+
+
+
 
 
             flight_info = {
@@ -144,8 +139,7 @@ def scrape_google_flights(soup):
                 'departure_time': departure_time,
                 'arrival_time': arrival_time,
                 'duration': duration,
-                'departure_airport': departure_airport_name + " " + departure_airport_code,
-                'arrival_airport': arrival_airport_name + " " + arrival_airport_code
+                'flight_data': flight_data
             }
 
             flights.append(flight_info)
@@ -165,6 +159,4 @@ def run(from_place, to_place, departure_date, return_date):
     except Exception as e:
         print(f"An error occurred during the scraping process: {e}")
 
-# Example usage
-# results = run("NYC", "LAX", "2023-10-01", "2023-10-15")
-# print(results)
+
