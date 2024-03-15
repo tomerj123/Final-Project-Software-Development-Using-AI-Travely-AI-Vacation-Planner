@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -11,11 +11,26 @@ import tempfile
 import asyncio
 import requests
 import logging
+from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
 app = FastAPI()
+
+origins = [
+    "http://localhost:3000",  # Adjust this to your frontend's origin
+    "http://127.0.0.1:3000",  # Or any other origins you want to allow
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # Allows specified origins to make requests
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
 # Configure the logging system
-logging.basicConfig(filename='data.log', level=logging.DEBUG,
+logging.basicConfig(filename='data.log', level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
 client = OpenAI(
@@ -202,12 +217,10 @@ async def gather_data(trip: TripDescription):
 
 
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
 
 
-@app.post("/plan-trip/", response_class=HTMLResponse)
+
+
 async def get_trip_plan(trip: TripDescription):
     html_content = "<h1>An error occurred while generating the trip plan</h1>"
 
@@ -346,4 +359,22 @@ async def get_trip_plan(trip: TripDescription):
         return HTMLResponse(content=html_content, status_code=200)
 
 
- 
+@app.post("/", response_class=HTMLResponse)
+async def get_trip_plan_args(request: Request):
+    body = await request.json()
+    
+    # Extract the tripInfo text from the JSON body
+    trip_text = body.get("tripInfo", "")  # Provide a default empty string if not found
+    
+    # Log the tripInfo text to the terminal
+    logging.info(f"Received trip text: {trip_text}")
+    # Assuming the body is a JSON that fits the TripDescription model
+    # Decode the bytes to string and parse with Pydantic model
+    try:
+
+        logging.info(f"Parsed trip data: {trip_text}")
+        # Use `trip` for further processing
+        return f"<html><body><p>Received: {trip_text}</p></body></html>"
+    except Exception as e:
+        logging.error(f"Error parsing trip data: {e}")
+        return HTMLResponse(content=f"<html><body><p>Error parsing trip data</p></body></html>", status_code=400)
