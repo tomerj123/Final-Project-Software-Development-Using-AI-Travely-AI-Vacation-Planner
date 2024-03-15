@@ -1,0 +1,7 @@
+openai
+fastapi
+uvicorn
+pydantic
+httpx
+datetime
+haversine
