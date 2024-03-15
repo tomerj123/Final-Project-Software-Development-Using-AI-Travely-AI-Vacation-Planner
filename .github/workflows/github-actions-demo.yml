@@ -12,9 +12,8 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - run: az container list --resource-group AIfinalProject
+      - run: az acr repository list --resource-group AIfinalProject
       - run: docker login tomerfinalprojectai.azurecr.io -u tomerfinalprojectai -p ${{ secrets.ACR_PASSWORD }}
-      - run: echo "yoyo"
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Build and push
@@ -22,5 +21,5 @@ jobs:
         with:
               push: true
               tags: tomerfinalprojectai.azurecr.io/projectimage:latest
+      - run: az container restart --resource-group AIfinalProject --name tomerfinalprojectai2
       - run: docker images
-      - run: echo "yoyo"

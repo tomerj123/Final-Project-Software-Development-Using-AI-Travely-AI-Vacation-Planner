@@ -363,7 +363,7 @@ def read_root():
         "Hello, please enter http://tomerandsionefinalproject.eastus.azurecontainer.io/docs to access the full API features"}
 
 
-@app.get("/search-for-your-preferred-airports/")
+@app.get("/search-for-your-preferred-airports-newv2/")
 async def select_airports(
         origin_city: str = Query(..., title="Origin City",
                                  description="Type the name of the origin city to get the IATA codes for the airports"),
