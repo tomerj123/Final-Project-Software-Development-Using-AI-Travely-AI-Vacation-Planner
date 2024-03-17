@@ -6,6 +6,8 @@ from openai import OpenAI
 import os
 from fastapi.responses import HTMLResponse
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import httpx
 import logging
@@ -14,8 +16,9 @@ import sqlite3
 import re
 from datetime import datetime
 
-dateformat = "%Y-%m-%d"
+from starlette.responses import RedirectResponse
 
+dateformat = "%Y-%m-%d"
 
 # Create a logger
 logger = logging.getLogger()
@@ -37,7 +40,7 @@ client = OpenAI(
 
 ### functions that uses openai API: ###
 # generate photo for the trip html page
-def generate_photo_for_html(destination):
+async def generate_photo_for_html(destination):
     response = client.images.generate(
         model="dall-e-3",
         prompt="I'm planning a trip to " + destination + ". Can you help me to create a photo for the trip?",
@@ -57,18 +60,19 @@ async def get_trip_suggestions(client, prompt):
                 "role": "user",
                 "content": prompt + "I'm planning a trip and need a detailed plan based on this information. Please "
                                     "create a comprehensive trip plan that includes in this order:"
-                            "1. The best flight option considering price and timing."
-                            "2. Top 3 hotel recommendations based on the data."
-                            "3. show now the budget that was left after the flight and hotel"
-                            "4. A day-by-day itinerary that: (in the first day take into account the arrival time of the flight in the planning)"
-                            "- Allocates activities and attractions based on their proximity (using the data)."
-                            "- Suggests dining options near each activity or attraction."
-                            "- Utilizes the budget effectively, considering the cost of flights and accommodation."
-                            "- Incorporates free time for shopping and exploration."
-                            "- Include addresses and websites of attractions"
-                            "4. Ensure all recommendations are presented in a way that will be visually appealing on a webpage, using HTML formatting where appropriate (e.g., <b> for bold)."
+                                    "1. The best flight option considering price and timing."
+                                    "2. Top 3 hotel recommendations based on the data."
+                                    "3. show now the budget that was left after the flight and hotel. take into consideration the number of people in the trip"
+                                    "4. A day-by-day itinerary that: (in the first day take into account the arrival time of the flight in the planning)"
+                                    "- Allocates activities and attractions based on their proximity (using the data)."
+                                    "- Suggests dining options near each activity or attraction."
+                                    "- Utilizes the budget effectively, considering the cost of flights and accommodation."
+                                    "- Incorporates free time for shopping and exploration."
+                                    "- Include addresses and websites of attractions"
+                                    "4. Ensure all recommendations are presented in a way that will be visually appealing on a webpage, using HTML formatting where appropriate (e.g., <b> for bold)."
+                                    "5. do not write me any instructions on how to put the trip plan in the html, just provide the plan itself."
 
-                            "Summarize the trip plan, ensuring it is well-organized and includes all relevant details."
+                                    "Summarize the trip plan, ensuring it is well-organized and includes all relevant details."
             }
         ],
         model="gpt-4-0125-preview",
@@ -144,12 +148,13 @@ async def get_flights_info(departure_id: str, arrival_id: str, outbound_date: st
                                 detail=f"Failed to fetch flight data from SerpApi: {response.text}")
 
 
-async def get_hotel_info(destination, check_in_date, check_out_date):
+async def get_hotel_info(destination, check_in_date, check_out_date, people_num):
     serpapi_params = {
         "q": "central hotels in " + destination,
         "check_in_date": check_in_date,
         "check_out_date": check_out_date,
         "currency": "USD",
+        "adults": people_num,
         "api_key": os.environ.get("SERPAPI_API_KEY")
     }
 
@@ -289,6 +294,7 @@ class TripDescription(BaseModel):
     budget: int
     start_date: str
     end_date: str
+    num_of_people: int
 
 
 ### main functions that gather all the data to create the trip plan: ###
@@ -305,7 +311,7 @@ async def gather_data(trip: TripDescription):
     # Use IATA codes for flight and hotel information fetching
     flights_info = await get_flights_info(trip.origin_iata, trip.destination_iata, trip.start_date, trip.end_date)
     # print(flights_info)
-    hotels_info = await get_hotel_info(trip.destination, trip.start_date, trip.end_date)
+    hotels_info = await get_hotel_info(trip.destination, trip.start_date, trip.end_date, trip.num_of_people)
     top_hotels = await get_top_hotels(client, hotels_info)
     activities_info, activities_location_ids = await get_activities_info(trip.destination)
     activities_details = []
@@ -327,6 +333,7 @@ async def gather_data(trip: TripDescription):
     Destination: {trip.destination}
     Budget: {trip.budget}
     Dates: From {trip.start_date} to {trip.end_date}
+    Number of people: {trip.num_of_people}
     Flights Info: {flights_info}
     Accommodation Info: {top_hotels}
     how to arrange the activities: {location_based_activities}
@@ -356,14 +363,39 @@ async def calculate_distances(activities):
 ### fastAPI: ###
 app = FastAPI()
 
+origins = [
+    "http://localhost:3000",
+    "localhost:3000",
+    "http://localhost:8000"
+    "http://0.0.0.0:80"
+    "http://backend:8000"
+    "backend:8000"
+    "tomerandsionefinalproject.eastus.azurecontainer.io"
+    #app domain on azure
+]
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # Specify the frontend origin here, or use "*" for development
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+# Mount the React build directory as a static files directory
+#app.mount("/frontend", StaticFiles(directory="frontend/build"), name="frontend")
+
+# You might also want to redirect the root URL to the frontend
 @app.get("/")
-def read_root():
-    return {
-        "Hello, please enter http://tomerandsionefinalproject.eastus.azurecontainer.io/docs to access the full API features"}
+async def root():
+    return RedirectResponse(url="/docs")
 
+@app.get("/CI-check")
+async def check():
+    return {"message": "CI Working"}
 
-@app.get("/search-for-your-preferred-airports-newv2/")
+@app.get("/search-for-your-preferred-airports/")
 async def select_airports(
         origin_city: str = Query(..., title="Origin City",
                                  description="Type the name of the origin city to get the IATA codes for the airports"),
@@ -396,6 +428,7 @@ async def select_airports(
 
 @app.post("/plan-trip/", response_class=HTMLResponse)
 async def get_trip_plan(trip: TripDescription):
+    print(trip.model_dump())
     data = await gather_data(trip)
     # Configure the logging system
     logging.info(data)
@@ -460,7 +493,7 @@ async def get_trip_plan(trip: TripDescription):
     </head>
     <body>
     <div class="header">
-        <img src="{generate_photo_for_html(trip.destination)}" alt="Photo">
+        <img src="{await generate_photo_for_html(trip.destination)}" alt="Photo">
     </div>
     
     <div class="container">

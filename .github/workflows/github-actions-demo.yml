@@ -20,5 +20,4 @@ jobs:
         with:
               push: true
               tags: tomerfinalprojectai.azurecr.io/projectimage:latest
-      - run: az container restart --resource-group AIfinalProject --name tomerfinalprojectai2
-      - run: docker images
+      - run: az container restart --resource-group AIfinalProject --name tomerfinalprojectai
