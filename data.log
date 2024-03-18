@@ -13088,3 +13088,335 @@ Day 7:
 2024-03-18 19:54:03,084 - DEBUG - HTTP Request: POST https://api.openai.com/v1/images/generations "200 OK"
 2024-03-18 19:58:31,464 - DEBUG - close.started
 2024-03-18 19:58:31,464 - DEBUG - close.complete
+2024-03-18 20:04:36,002 - DEBUG - load_ssl_context verify=True cert=None trust_env=True http2=False
+2024-03-18 20:04:36,005 - DEBUG - load_verify_locations cafile='C:\\Users\\SioneMilhem\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\cacert.pem'
+2024-03-18 20:04:36,480 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:04:36,539 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:04:36,540 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:04:36,560 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:04:36,561 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:04:36,580 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:04:36,580 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:04:36,607 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:04:36,608 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:04:36,636 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:04:36,637 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:04:36,658 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:04:36,658 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:04:36,683 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:04:36,683 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:04:36,692 - DEBUG - load_ssl_context verify=True cert=None trust_env=True http2=False
+2024-03-18 20:04:36,692 - DEBUG - load_verify_locations cafile='C:\\Users\\SioneMilhem\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\cacert.pem'
+2024-03-18 20:04:37,155 - WARNING - Executing <Task pending name='Task-34' coro=<TestFunctions.test_get_flights_info_success() running at C:\Users\SioneMilhem\Documents\Ai dev class\Final-Project-Software-Development-Using-AI\app\test.py:128> cb=[_run_until_complete_cb() at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:180] created at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.469 seconds
+2024-03-18 20:04:37,171 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:04:37,173 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:04:37,200 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:04:37,201 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:04:37,214 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:04:37,215 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:04:37,229 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:04:37,229 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:04:37,260 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:04:37,261 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:04:37,278 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:04:37,279 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:04:37,296 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:05:49,571 - DEBUG - load_ssl_context verify=True cert=None trust_env=True http2=False
+2024-03-18 20:05:49,574 - DEBUG - load_verify_locations cafile='C:\\Users\\SioneMilhem\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\cacert.pem'
+2024-03-18 20:05:50,046 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:05:50,104 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:05:50,105 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:05:50,124 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:05:50,125 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:05:50,144 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:05:50,144 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:05:50,166 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:05:50,167 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:05:50,196 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:05:50,197 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:05:50,214 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:05:50,215 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:05:50,242 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:05:50,242 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:05:50,249 - DEBUG - load_ssl_context verify=True cert=None trust_env=True http2=False
+2024-03-18 20:05:50,249 - DEBUG - load_verify_locations cafile='C:\\Users\\SioneMilhem\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\cacert.pem'
+2024-03-18 20:05:50,723 - WARNING - Executing <Task pending name='Task-34' coro=<TestFunctions.test_get_flights_info_success() running at C:\Users\SioneMilhem\Documents\Ai dev class\Final-Project-Software-Development-Using-AI\app\test.py:128> cb=[_run_until_complete_cb() at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:180] created at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.484 seconds
+2024-03-18 20:05:50,739 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:05:50,739 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:05:50,763 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:05:50,763 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:05:50,778 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:05:50,778 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:05:50,796 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:05:50,796 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:05:50,829 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:05:50,830 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:05:50,850 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:05:50,850 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:05:50,871 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:06:59,117 - DEBUG - load_ssl_context verify=True cert=None trust_env=True http2=False
+2024-03-18 20:06:59,121 - DEBUG - load_verify_locations cafile='C:\\Users\\SioneMilhem\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\cacert.pem'
+2024-03-18 20:06:59,695 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:06:59,745 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:06:59,746 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:06:59,764 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:06:59,765 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:06:59,780 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:06:59,781 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:06:59,800 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:06:59,806 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:06:59,844 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:06:59,844 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:06:59,869 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:06:59,869 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:06:59,876 - DEBUG - load_ssl_context verify=True cert=None trust_env=True http2=False
+2024-03-18 20:06:59,877 - DEBUG - load_verify_locations cafile='C:\\Users\\SioneMilhem\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\cacert.pem'
+2024-03-18 20:07:00,468 - WARNING - Executing <Task pending name='Task-29' coro=<TestFunctions.test_get_activities_info_success() running at C:\Users\SioneMilhem\Documents\Ai dev class\Final-Project-Software-Development-Using-AI\app\test.py:125> cb=[_run_until_complete_cb() at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:180] created at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.594 seconds
+2024-03-18 20:07:00,481 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:07:00,482 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:07:00,491 - DEBUG - load_ssl_context verify=True cert=None trust_env=True http2=False
+2024-03-18 20:07:00,492 - DEBUG - load_verify_locations cafile='C:\\Users\\SioneMilhem\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\cacert.pem'
+2024-03-18 20:07:01,047 - WARNING - Executing <Task pending name='Task-34' coro=<TestFunctions.test_get_flights_info_success() running at C:\Users\SioneMilhem\Documents\Ai dev class\Final-Project-Software-Development-Using-AI\app\test.py:136> cb=[_run_until_complete_cb() at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:180] created at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.562 seconds
+2024-03-18 20:07:01,064 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:07:01,065 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:07:01,083 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:07:01,084 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:07:01,098 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:07:01,099 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:07:01,115 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:07:01,116 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:07:01,144 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:07:01,146 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:07:01,164 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:07:01,164 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:07:01,186 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:09:26,274 - DEBUG - load_ssl_context verify=True cert=None trust_env=True http2=False
+2024-03-18 20:09:26,277 - DEBUG - load_verify_locations cafile='C:\\Users\\SioneMilhem\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\cacert.pem'
+2024-03-18 20:09:26,782 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:09:26,823 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:09:26,824 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:09:26,837 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:09:26,837 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:09:26,850 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:09:26,851 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:09:26,873 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:09:26,873 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:09:26,906 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:09:26,906 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:09:26,925 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:09:26,925 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:09:26,930 - DEBUG - load_ssl_context verify=True cert=None trust_env=True http2=False
+2024-03-18 20:09:26,932 - DEBUG - load_verify_locations cafile='C:\\Users\\SioneMilhem\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\cacert.pem'
+2024-03-18 20:09:27,491 - WARNING - Executing <Task pending name='Task-29' coro=<TestFunctions.test_get_activities_info_success() running at C:\Users\SioneMilhem\Documents\Ai dev class\Final-Project-Software-Development-Using-AI\app\test.py:125> cb=[_run_until_complete_cb() at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:180] created at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.563 seconds
+2024-03-18 20:09:27,506 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:09:27,506 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:09:27,513 - DEBUG - load_ssl_context verify=True cert=None trust_env=True http2=False
+2024-03-18 20:09:27,514 - DEBUG - load_verify_locations cafile='C:\\Users\\SioneMilhem\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\cacert.pem'
+2024-03-18 20:09:28,130 - WARNING - Executing <Task pending name='Task-34' coro=<TestFunctions.test_get_flights_info_success() running at C:\Users\SioneMilhem\Documents\Ai dev class\Final-Project-Software-Development-Using-AI\app\test.py:136> cb=[_run_until_complete_cb() at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:180] created at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.625 seconds
+2024-03-18 20:09:28,154 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:09:28,155 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:09:28,177 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:09:28,177 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:09:28,192 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:09:28,192 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:09:28,206 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:09:28,208 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:09:28,226 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:09:28,226 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:09:28,245 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:09:28,245 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:09:28,269 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:16:11,969 - DEBUG - load_ssl_context verify=True cert=None trust_env=True http2=False
+2024-03-18 20:16:11,972 - DEBUG - load_verify_locations cafile='C:\\Users\\SioneMilhem\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\cacert.pem'
+2024-03-18 20:16:12,514 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:16:12,557 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:16:12,559 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:16:12,571 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:16:12,571 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:16:12,588 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:16:12,589 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:16:12,607 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:16:12,608 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:16:12,646 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:16:12,646 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:16:12,669 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:16:12,670 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:16:12,678 - DEBUG - load_ssl_context verify=True cert=None trust_env=True http2=False
+2024-03-18 20:16:12,679 - DEBUG - load_verify_locations cafile='C:\\Users\\SioneMilhem\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\cacert.pem'
+2024-03-18 20:16:13,233 - WARNING - Executing <Task pending name='Task-29' coro=<TestFunctions.test_get_activities_info_success() running at C:\Users\SioneMilhem\Documents\Ai dev class\Final-Project-Software-Development-Using-AI\app\test.py:126> cb=[_run_until_complete_cb() at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:180] created at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.563 seconds
+2024-03-18 20:16:13,245 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:16:13,246 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:16:13,256 - DEBUG - load_ssl_context verify=True cert=None trust_env=True http2=False
+2024-03-18 20:16:13,257 - DEBUG - load_verify_locations cafile='C:\\Users\\SioneMilhem\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\cacert.pem'
+2024-03-18 20:16:13,813 - WARNING - Executing <Task pending name='Task-34' coro=<TestFunctions.test_get_flights_info_success() running at C:\Users\SioneMilhem\Documents\Ai dev class\Final-Project-Software-Development-Using-AI\app\test.py:137> cb=[_run_until_complete_cb() at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:180] created at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.563 seconds
+2024-03-18 20:16:13,829 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:16:13,829 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:16:13,847 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:16:13,848 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:16:13,863 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:16:13,864 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:16:13,880 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:16:13,882 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:16:13,902 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:16:13,903 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:16:13,921 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:16:13,921 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:16:13,940 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:17:51,175 - DEBUG - load_ssl_context verify=True cert=None trust_env=True http2=False
+2024-03-18 20:17:51,179 - DEBUG - load_verify_locations cafile='C:\\Users\\SioneMilhem\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\cacert.pem'
+2024-03-18 20:17:51,704 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:17:51,743 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:17:51,744 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:17:51,760 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:17:51,761 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:17:51,777 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:17:51,778 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:17:51,794 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:17:51,794 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:17:51,823 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:17:51,823 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:17:51,829 - DEBUG - Request options: {'method': 'post', 'url': '/images/generations', 'files': None, 'json_data': {'prompt': "I'm planning a trip to Paris. Can you help me to create a photo for the trip?", 'model': 'dall-e-3', 'n': 1, 'quality': 'standard', 'size': '1024x1024'}}
+2024-03-18 20:17:51,942 - DEBUG - connect_tcp.started host='api.openai.com' port=443 local_address=None timeout=5.0 socket_options=None
+2024-03-18 20:17:52,055 - DEBUG - connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000001F1AA30D430>
+2024-03-18 20:17:52,055 - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x000001F1A91FCF50> server_hostname='api.openai.com' timeout=5.0
+2024-03-18 20:17:52,121 - DEBUG - start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000001F1A917ACC0>
+2024-03-18 20:17:52,122 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2024-03-18 20:17:52,123 - DEBUG - send_request_headers.complete
+2024-03-18 20:17:52,123 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2024-03-18 20:17:52,124 - DEBUG - send_request_body.complete
+2024-03-18 20:17:52,124 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2024-03-18 20:18:04,515 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Mon, 18 Mar 2024 18:18:04 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'openai-version', b'2020-10-01'), (b'openai-organization', b'reichman-university-wxioss'), (b'x-request-id', b'req_f65afbdae4726aa4aa54b9c5645d188c'), (b'openai-processing-ms', b'12180'), (b'access-control-allow-origin', b'*'), (b'strict-transport-security', b'max-age=15724800; includeSubDomains'), (b'CF-Cache-Status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=GyeOxslGNCHt6CI1jihya7_cUY3RqZKIPOHpeLcDj6g-1710785884-1.0.1.1-Ly0xjPrcYdX3eMDP7khwns3k31s_GJ6PX5XdT1LwB6unZzm6hdP7aZKyMcvkQx7fJMndxOoqCZ.UjHoEZErhJQ; path=/; expires=Mon, 18-Mar-24 18:48:04 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Set-Cookie', b'_cfuvid=F__OJETUyU6R3E9Ky6HONy_RdKfrP6_7fKXnvFnrj2g-1710785884035-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'866738d22f653606-FRA'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+2024-03-18 20:18:04,518 - INFO - HTTP Request: POST https://api.openai.com/v1/images/generations "HTTP/1.1 200 OK"
+2024-03-18 20:18:04,518 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2024-03-18 20:18:04,519 - DEBUG - receive_response_body.complete
+2024-03-18 20:18:04,519 - DEBUG - response_closed.started
+2024-03-18 20:18:04,520 - DEBUG - response_closed.complete
+2024-03-18 20:18:04,520 - DEBUG - HTTP Request: POST https://api.openai.com/v1/images/generations "200 OK"
+2024-03-18 20:18:04,523 - WARNING - Executing <Task finished name='Task-24' coro=<TestFunctions.test_generate_photo_for_html() done, defined at C:\Users\SioneMilhem\Documents\Ai dev class\Final-Project-Software-Development-Using-AI\app\test.py:138> exception=AssertionError("'https://oaidalleapiprodscus.blob.core.windows[423 chars]g%3D' != 'http://example.com/photo.jpg'\n- https://oaidalleapiprodscus.blob.core.windows.net/private/org-2CwskBzgGP5OnJE5rJP2GrIS/user-cuxSx2BvVvOWW9ZvjljBnrZW/img-yPhAp1XFrkJgzjTmFuL38Htt.png?st=2024-03-18T17%3A18%3A03Z&se=2024-03-18T19%3A18%3A03Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-03-18T07%3A52%3A56Z&ske=2024-03-19T07%3A52%3A56Z&sks=b&skv=2021-08-06&sig=pGyCUBzBJfLixF77DPSFklWcTuvCKr0g0/9sPSXkjMg%3D\n+ http://example.com/photo.jpg\n") created at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 12.687 seconds
+2024-03-18 20:18:04,533 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:18:04,534 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:18:04,542 - DEBUG - load_ssl_context verify=True cert=None trust_env=True http2=False
+2024-03-18 20:18:04,542 - DEBUG - load_verify_locations cafile='C:\\Users\\SioneMilhem\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\cacert.pem'
+2024-03-18 20:18:05,039 - WARNING - Executing <Task pending name='Task-29' coro=<TestFunctions.test_get_activities_info_success() running at C:\Users\SioneMilhem\Documents\Ai dev class\Final-Project-Software-Development-Using-AI\app\test.py:126> cb=[_run_until_complete_cb() at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:180] created at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.500 seconds
+2024-03-18 20:18:05,049 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:18:05,050 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:18:05,055 - DEBUG - load_ssl_context verify=True cert=None trust_env=True http2=False
+2024-03-18 20:18:05,055 - DEBUG - load_verify_locations cafile='C:\\Users\\SioneMilhem\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\cacert.pem'
+2024-03-18 20:18:05,503 - WARNING - Executing <Task pending name='Task-34' coro=<TestFunctions.test_get_flights_info_success() running at C:\Users\SioneMilhem\Documents\Ai dev class\Final-Project-Software-Development-Using-AI\app\test.py:135> cb=[_run_until_complete_cb() at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:180] created at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.453 seconds
+2024-03-18 20:18:05,507 - DEBUG - connect_tcp.started host='serpapi.com' port=443 local_address=None timeout=5.0 socket_options=None
+2024-03-18 20:18:05,509 - DEBUG - Get address info b'serpapi.com':443, type=<SocketKind.SOCK_STREAM: 1>
+2024-03-18 20:18:05,566 - DEBUG - Getting address info b'serpapi.com':443, type=<SocketKind.SOCK_STREAM: 1> took 63.000ms: [(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 0, '', ('172.67.20.147', 443)), (<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 0, '', ('104.22.9.35', 443)), (<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 0, '', ('104.22.8.35', 443))]
+2024-03-18 20:18:05,652 - DEBUG - <asyncio.TransportSocket fd=1276, family=2, type=1, proto=6, laddr=('192.168.10.28', 56781), raddr=('172.67.20.147', 443)> connected to 172.67.20.147:443: (<_ProactorSocketTransport fd=1276 read=<_OverlappedFuture pending cb=[_ProactorReadPipeTransport._loop_reading()] created at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:493>>, <anyio._backends._asyncio.StreamProtocol object at 0x000001F1AA820DD0>)
+2024-03-18 20:18:05,652 - DEBUG - <_ProactorSocketTransport fd=1276 read=<_OverlappedFuture pending cb=[_ProactorReadPipeTransport._loop_reading()] created at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:493>> pauses reading
+2024-03-18 20:18:05,657 - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001F1AA30CD10>
+2024-03-18 20:18:05,657 - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x000001F1AA30A350> server_hostname='serpapi.com' timeout=5.0
+2024-03-18 20:18:05,663 - DEBUG - <_ProactorSocketTransport fd=1276 read=<_OverlappedFuture pending cb=[_ProactorReadPipeTransport._loop_reading()] created at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:493>> resumes reading
+2024-03-18 20:18:05,745 - DEBUG - <_ProactorSocketTransport fd=1276 read=<_OverlappedFuture pending cb=[_ProactorReadPipeTransport._loop_reading()] created at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:493>> pauses reading
+2024-03-18 20:18:05,753 - DEBUG - <_ProactorSocketTransport fd=1276 read=<_OverlappedFuture pending cb=[_ProactorReadPipeTransport._loop_reading()] created at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:493>> resumes reading
+2024-03-18 20:18:05,826 - DEBUG - <_ProactorSocketTransport fd=1276 read=<_OverlappedFuture pending cb=[_ProactorReadPipeTransport._loop_reading()] created at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:493>> pauses reading
+2024-03-18 20:18:05,827 - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001F1AA7F7350>
+2024-03-18 20:18:05,828 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2024-03-18 20:18:05,833 - DEBUG - send_request_headers.complete
+2024-03-18 20:18:05,833 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2024-03-18 20:18:05,834 - DEBUG - send_request_body.complete
+2024-03-18 20:18:05,834 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2024-03-18 20:18:05,836 - DEBUG - <_ProactorSocketTransport fd=1276 read=<_OverlappedFuture pending cb=[_ProactorReadPipeTransport._loop_reading()] created at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:493>> resumes reading
+2024-03-18 20:18:06,140 - DEBUG - <_ProactorSocketTransport fd=1276 read=<_OverlappedFuture pending cb=[_ProactorReadPipeTransport._loop_reading()] created at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:493>> pauses reading
+2024-03-18 20:18:06,141 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 400, b'Bad Request', [(b'Date', b'Mon, 18 Mar 2024 18:18:05 GMT'), (b'Content-Type', b'application/json; charset=utf-8'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'CF-Ray', b'86673927cdfb91f8-MUC'), (b'CF-Cache-Status', b'MISS'), (b'Cache-Control', b'no-cache'), (b'Vary', b'Accept-Encoding'), (b'referrer-policy', b'strict-origin-when-cross-origin'), (b'x-content-type-options', b'nosniff'), (b'x-download-options', b'noopen'), (b'x-frame-options', b'SAMEORIGIN'), (b'x-permitted-cross-domain-policies', b'none'), (b'x-request-id', b'5d1a3237-d786-4c54-a797-a7a8e9fd145b'), (b'x-runtime', b'0.040968'), (b'x-xss-protection', b'1; mode=block'), (b'Server', b'cloudflare'), (b'alt-svc', b'h3=":443"; ma=86400')])
+2024-03-18 20:18:06,141 - INFO - HTTP Request: GET https://serpapi.com/search?engine=google_flights&departure_id=JFK&arrival_id=LAX&outbound_date=2024-01-01&return_date=2024-01-05&currency=USD&hl=en&api_key=669f434e4ba2136c8626035972520de9b20e743726e97f32db7f33e748d2e561 "HTTP/1.1 400 Bad Request"
+2024-03-18 20:18:06,142 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2024-03-18 20:18:06,143 - DEBUG - receive_response_body.complete
+2024-03-18 20:18:06,144 - DEBUG - response_closed.started
+2024-03-18 20:18:06,144 - DEBUG - response_closed.complete
+2024-03-18 20:18:06,147 - DEBUG - close.started
+2024-03-18 20:18:06,152 - DEBUG - close.complete
+2024-03-18 20:18:06,168 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:18:06,169 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:18:06,184 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:18:06,185 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:18:06,201 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:18:06,201 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:18:06,216 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:18:06,217 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:18:06,244 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:18:06,244 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:18:06,264 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:18:06,264 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:18:06,309 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:18:06,408 - DEBUG - close.started
+2024-03-18 20:18:06,409 - DEBUG - close.complete
+2024-03-18 20:18:32,159 - DEBUG - load_ssl_context verify=True cert=None trust_env=True http2=False
+2024-03-18 20:18:32,162 - DEBUG - load_verify_locations cafile='C:\\Users\\SioneMilhem\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\cacert.pem'
+2024-03-18 20:18:32,629 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:18:32,709 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:18:32,710 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:18:32,729 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:18:32,730 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:18:32,750 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:18:32,751 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:18:32,771 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:18:32,773 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:18:32,806 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:18:32,807 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:18:32,829 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:18:32,829 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:18:32,838 - DEBUG - load_ssl_context verify=True cert=None trust_env=True http2=False
+2024-03-18 20:18:32,838 - DEBUG - load_verify_locations cafile='C:\\Users\\SioneMilhem\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\cacert.pem'
+2024-03-18 20:18:33,326 - WARNING - Executing <Task pending name='Task-29' coro=<TestFunctions.test_get_activities_info_success() running at C:\Users\SioneMilhem\Documents\Ai dev class\Final-Project-Software-Development-Using-AI\app\test.py:126> cb=[_run_until_complete_cb() at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:180] created at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.484 seconds
+2024-03-18 20:18:33,339 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:18:33,339 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:18:33,346 - DEBUG - load_ssl_context verify=True cert=None trust_env=True http2=False
+2024-03-18 20:18:33,347 - DEBUG - load_verify_locations cafile='C:\\Users\\SioneMilhem\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\cacert.pem'
+2024-03-18 20:18:33,789 - WARNING - Executing <Task pending name='Task-34' coro=<TestFunctions.test_get_flights_info_success() running at C:\Users\SioneMilhem\Documents\Ai dev class\Final-Project-Software-Development-Using-AI\app\test.py:137> cb=[_run_until_complete_cb() at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:180] created at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.438 seconds
+2024-03-18 20:18:33,806 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:18:33,807 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:18:33,823 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:18:33,824 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:18:33,839 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:18:33,840 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:18:33,864 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:18:33,865 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:18:33,886 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:18:33,886 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:18:33,907 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:18:33,908 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:18:33,933 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:20:28,166 - DEBUG - load_ssl_context verify=True cert=None trust_env=True http2=False
+2024-03-18 20:20:28,168 - DEBUG - load_verify_locations cafile='C:\\Users\\SioneMilhem\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\cacert.pem'
+2024-03-18 20:20:28,703 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:20:28,762 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:20:28,763 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:20:28,781 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:20:28,782 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:20:28,796 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:20:28,797 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:20:28,819 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:20:28,819 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:20:28,857 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:20:28,858 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:20:28,877 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:20:28,877 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:20:28,885 - DEBUG - load_ssl_context verify=True cert=None trust_env=True http2=False
+2024-03-18 20:20:28,886 - DEBUG - load_verify_locations cafile='C:\\Users\\SioneMilhem\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\cacert.pem'
+2024-03-18 20:20:29,342 - WARNING - Executing <Task pending name='Task-29' coro=<TestFunctions.test_get_activities_info_success() running at C:\Users\SioneMilhem\Documents\Ai dev class\Final-Project-Software-Development-Using-AI\app\test.py:125> cb=[_run_until_complete_cb() at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:180] created at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.454 seconds
+2024-03-18 20:20:29,354 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:20:29,355 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:20:29,360 - DEBUG - load_ssl_context verify=True cert=None trust_env=True http2=False
+2024-03-18 20:20:29,361 - DEBUG - load_verify_locations cafile='C:\\Users\\SioneMilhem\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\cacert.pem'
+2024-03-18 20:20:29,802 - WARNING - Executing <Task pending name='Task-34' coro=<TestFunctions.test_get_flights_info_success() running at C:\Users\SioneMilhem\Documents\Ai dev class\Final-Project-Software-Development-Using-AI\app\test.py:136> cb=[_run_until_complete_cb() at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:180] created at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.437 seconds
+2024-03-18 20:20:29,819 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:20:29,820 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:20:29,827 - DEBUG - load_ssl_context verify=True cert=None trust_env=True http2=False
+2024-03-18 20:20:29,827 - DEBUG - load_verify_locations cafile='C:\\Users\\SioneMilhem\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\cacert.pem'
+2024-03-18 20:20:30,252 - WARNING - Executing <Task pending name='Task-39' coro=<TestFunctions.test_get_hotel_info_success() running at C:\Users\SioneMilhem\Documents\Ai dev class\Final-Project-Software-Development-Using-AI\app\test.py:110> cb=[_run_until_complete_cb() at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:180] created at C:\Users\SioneMilhem\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.437 seconds
+2024-03-18 20:20:30,262 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:20:30,263 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:20:30,279 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:20:30,279 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:20:30,295 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:20:30,295 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:20:30,314 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:20:30,315 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:20:30,334 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
+2024-03-18 20:20:30,334 - DEBUG - Using proactor: IocpProactor
+2024-03-18 20:20:30,354 - DEBUG - Close <ProactorEventLoop running=False closed=False debug=True>
