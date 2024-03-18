@@ -16,7 +16,7 @@ function App() {
         <Sidebar />
         <div style={{ flex: 1, padding: "20px" }}>
           <Routes>
-            <Route path="/" element={<TripForm setTripPlanHtml={setTripPlanHtml} />} />
+            <Route path="/" element={!tripPlanHtml && <TripForm setTripPlanHtml={setTripPlanHtml} />} />
             <Route path="/iata-codes" element={<IATACodes />} />
           </Routes>
           {tripPlanHtml && <TripPlan plan={tripPlanHtml} />}
