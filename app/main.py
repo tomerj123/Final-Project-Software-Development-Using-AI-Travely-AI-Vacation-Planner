@@ -38,6 +38,10 @@ client = OpenAI(
 )
 
 
+
+
+
+
 ### functions that uses openai API: ###
 # generate photo for the trip html page
 async def generate_photo_for_html(destination):
@@ -158,6 +162,8 @@ async def get_hotel_info(destination, check_in_date, check_out_date, people_num)
         "api_key": os.environ.get("SERPAPI_API_KEY")
     }
 
+
+
     async with httpx.AsyncClient() as client:
         response = await client.get("https://serpapi.com/search?engine=google_hotels", params=serpapi_params)
 
@@ -171,7 +177,7 @@ async def get_hotel_info(destination, check_in_date, check_out_date, people_num)
 
 ### functions that uses tripadvisor API: ###
 async def get_activities_info(destination):
-    key = os.environ.get("TRIPADVISOR_API_KEY")
+    key ="7D8FF18728F342E29B426D6D5946FA6C"
     headers = {"accept": "application/json"}
     combined_data = []
     location_ids = []
@@ -299,48 +305,53 @@ class TripDescription(BaseModel):
 
 ### main functions that gather all the data to create the trip plan: ###
 async def gather_data(trip: TripDescription):
-    # Convert trip origin and destination names to IATA codes
-    if not trip.origin_iata:
-        trip.origin_iata = get_iata_code(trip.origin)
-    if not trip.destination_iata:
-        trip.destination_iata = get_iata_code(trip.destination)
-    if not trip.origin_iata or not trip.destination_iata:
-        # Handle cases where IATA codes are not found
-        raise HTTPException(status_code=404, detail="IATA code for city not found")
+    try:
+        # Convert trip origin and destination names to IATA codes
+        if not trip.origin_iata:
+            trip.origin_iata = get_iata_code(trip.origin)
+        if not trip.destination_iata:
+            trip.destination_iata = get_iata_code(trip.destination)
+        if not trip.origin_iata or not trip.destination_iata:
+            # Handle cases where IATA codes are not found
+            raise HTTPException(status_code=404, detail="IATA code for city not found")
 
-    # Use IATA codes for flight and hotel information fetching
-    flights_info = await get_flights_info(trip.origin_iata, trip.destination_iata, trip.start_date, trip.end_date)
-    # print(flights_info)
-    hotels_info = await get_hotel_info(trip.destination, trip.start_date, trip.end_date, trip.num_of_people)
-    top_hotels = await get_top_hotels(client, hotels_info)
-    activities_info, activities_location_ids = await get_activities_info(trip.destination)
-    activities_details = []
-    for location_id in activities_location_ids:
-        activity_details = await get_location_details(location_id)
-        if activity_details:
-            activities_details.append(activity_details)
+        # Use IATA codes for flight and hotel information fetching
+        flights_info = await get_flights_info(trip.origin_iata, trip.destination_iata, trip.start_date, trip.end_date)
+        hotels_info = await get_hotel_info(trip.destination, trip.start_date, trip.end_date, trip.num_of_people)
+        top_hotels = await get_top_hotels(client, hotels_info)
+        activities_info, activities_location_ids = await get_activities_info(trip.destination)
+        
+        activities_details = []
+        for location_id in activities_location_ids:
+            activity_details = await get_location_details(location_id)
+            if activity_details:
+                activities_details.append(activity_details)
 
-    distances = await calculate_distances(activities_details)
-    start_date = datetime.strptime(trip.start_date, dateformat)
-    end_date = datetime.strptime(trip.end_date, dateformat)
-    num_days = (end_date - start_date).days
+        distances = await calculate_distances(activities_details)
+        start_date = datetime.strptime(trip.start_date, "%Y-%m-%d")
+        end_date = datetime.strptime(trip.end_date, "%Y-%m-%d")
+        num_days = (end_date - start_date).days
 
-    location_based_activities = await generate_genral_activities(client, distances, str(num_days))
+        location_based_activities = await generate_genral_activities(client, distances, str(num_days))
 
-    # print(activities_info)
+        data = f"""
+        Destination: {trip.destination}
+        Budget: {trip.budget}
+        Dates: From {trip.start_date} to {trip.end_date}
+        Number of people: {trip.num_of_people}
+        Flights Info: {flights_info}
+        Accommodation Info: {top_hotels}
+        How to arrange the activities: {location_based_activities}
+        Activities Info: {activities_info}
+        Activities websites: {activities_details}
+        """
+        return data.strip()
 
-    data = f"""
-    Destination: {trip.destination}
-    Budget: {trip.budget}
-    Dates: From {trip.start_date} to {trip.end_date}
-    Number of people: {trip.num_of_people}
-    Flights Info: {flights_info}
-    Accommodation Info: {top_hotels}
-    how to arrange the activities: {location_based_activities}
-    Activities Info: {activities_info}
-    activities websites: {activities_details}
-    """
-    return data.strip()
+    except Exception as e:
+        # Log the exception or handle it as needed
+        print(f"Error gathering trip data: {e}")
+        # You might want to raise an HTTPException to send a specific error response to the client
+        raise HTTPException(status_code=500, detail="An error occurred while gathering trip data.")
 
 
 async def calculate_distances(activities):
@@ -479,6 +490,15 @@ async def get_trip_plan(trip: TripDescription):
                 margin-bottom: 20px;
                 border-left: 4px solid #007bff; /* Add a colored border to the left */
             }}
+            .trip-details-main {{
+                display: flex; /* This makes it a Flex container */
+                flex-direction: row; /* This aligns children in a row */
+                flex-wrap: wrap; /* This allows items to wrap to the next line if there's not enough space */
+                justify-content: space-around; /* This distributes space around the items */
+                align-items: stretch; /* This stretches the items to fill the container height */
+                gap: 20px; /* This adds some space between the items */
+                margin-bottom: 20px; /* Add a colored border to the left */
+            }}
             .card-body {{
                 color: #495057; /* Darker text for better readability */
             }}
@@ -498,7 +518,7 @@ async def get_trip_plan(trip: TripDescription):
     
     <div class="container">
     
-        <div class="trip-details">
+        <div class="trip-details-main">
         
             <div class="card">
                 <div class="card-body">
@@ -530,7 +550,7 @@ async def get_trip_plan(trip: TripDescription):
         </div>
     
         <div class="jumbotron text-center">
-            <h1 class="display-4"><i class="fas fa-map-marked-alt icon"></i>Your Trip Plan</h1>
+            <h1 class="display-4"></i>Your Trip Plan</h1>
             <p class="lead">Here's a detailed plan for your upcoming adventure.</p>
             <div class="trip-plan">{trip_plan_html}</div> <!-- Display the trip plan string here -->
         </div>

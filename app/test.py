@@ -1,18 +1,27 @@
 import unittest
+from fastapi import HTTPException
 import httpx
 from unittest.mock import MagicMock, patch
 from unittest.mock import AsyncMock
 import sqlite3
-
-from app.main import (
+from main import (
     calculate_distances,
-    get_location_details,
-    get_iata_code,
-    get_iata_codes_and_airports,
-    format_trip_plan,
     extract_hotel_data,
-    format_hotels_for_prompt, get_activities_info, get_hotel_info,
+    format_hotels_for_prompt,
+    format_trip_plan,
+    get_activities_info,
+    get_flights_info,
+    get_hotel_info,
+    get_iata_codes_and_airports,
+    get_location_details,
+    get_trip_suggestions,
+    generate_photo_for_html,
+    get_top_hotels,
+    generate_genral_activities,
 )
+
+
+
 
 class TestFunctions(unittest.IsolatedAsyncioTestCase):
     async def test_calculate_distances_between_locations(self):
@@ -44,12 +53,20 @@ class TestFunctions(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(details["website"], "example.com")
 
     def test_get_iata_code(self):
-        conn = sqlite3.connect("app/IATA_Codes.db")
-        result = get_iata_code("Paris")
-        self.assertEqual(result, [('PHT',), ('PRX',), ('LBG',), ('CDG',), ('ORY',)])
+        conn = sqlite3.connect("./IATA_Codes.db")
+        result = get_iata_codes_and_airports("Paris")
+        expected_result = [
+            {'IATA code': 'PHT', 'Name': 'Henry County Airport'},
+            {'IATA code': 'PRX', 'Name': 'Cox Field'},
+            {'IATA code': 'LBG', 'Name': 'Paris-Le Bourget Airport'},
+            {'IATA code': 'CDG', 'Name': 'Charles de Gaulle International Airport'},
+            {'IATA code': 'ORY', 'Name': 'Paris-Orly Airport'}
+        ]
+        self.assertEqual(result, expected_result)
+
 
     def test_get_iata_codes_and_airports(self):
-        conn = sqlite3.connect("app/IATA_Codes.db")
+        conn = sqlite3.connect("./IATA_Codes.db")
         result = get_iata_codes_and_airports("Tel Aviv")
         self.assertEqual(result, [{'Name': 'Ben Gurion International Airport', 'IATA code': 'TLV'}, {'Name': 'Sde Dov Airport', 'IATA code': 'SDV'}])
 
@@ -99,7 +116,7 @@ class TestFunctions(unittest.IsolatedAsyncioTestCase):
 
         # Patch the httpx.AsyncClient.get method to return the mock response
         with patch.object(httpx.AsyncClient, 'get', return_value=mock_response):
-            properties = await get_hotel_info("New York", "2024-04-01", "2024-04-10")
+            properties = await get_hotel_info("New York", "2024-04-01", "2024-04-10", "2")
             assert properties == ["Hotel1", "Hotel2"], "Should return a list of properties"
 
     async def test_get_activities_info_success(self):
@@ -117,6 +134,26 @@ class TestFunctions(unittest.IsolatedAsyncioTestCase):
             combined_data, location_ids = await get_activities_info("Paris")
             assert combined_data == [{"location_id": "1", "name": "Attraction1"}, {"location_id": "2", "name": "Restaurant1"}], "Should return combined data"
             assert location_ids == ["1", "2"], "Should return a list of location_ids"
+
+    async def test_get_flights_info_failure(self):
+        mock_response = MagicMock()
+        mock_response.status_code = 404
+        mock_response.json.return_value = {"error": "Not Found"}
+        mock_response.text = "Not Found"
+
+        with patch.object(httpx.AsyncClient, 'get', return_value=mock_response):
+            with self.assertRaises(HTTPException) as context:
+                await get_flights_info("ABC", "DEF", "2024-01-01", "2024-01-15")
+            self.assertEqual(context.exception.status_code, 404)
+
+
+
+
+
+
+ 
+
+  
 
 if __name__ == "__main__":
     unittest.main()
