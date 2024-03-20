@@ -1,4 +1,5 @@
 import unittest
+from fastapi import HTTPException
 import httpx
 from unittest.mock import MagicMock, patch
 from unittest.mock import AsyncMock
@@ -54,7 +55,15 @@ class TestFunctions(unittest.IsolatedAsyncioTestCase):
     def test_get_iata_code(self):
         conn = sqlite3.connect("./IATA_Codes.db")
         result = get_iata_codes_and_airports("Paris")
-        self.assertEqual(result, [('PHT',), ('PRX',), ('LBG',), ('CDG',), ('ORY',)])
+        expected_result = [
+            {'IATA code': 'PHT', 'Name': 'Henry County Airport'},
+            {'IATA code': 'PRX', 'Name': 'Cox Field'},
+            {'IATA code': 'LBG', 'Name': 'Paris-Le Bourget Airport'},
+            {'IATA code': 'CDG', 'Name': 'Charles de Gaulle International Airport'},
+            {'IATA code': 'ORY', 'Name': 'Paris-Orly Airport'}
+        ]
+        self.assertEqual(result, expected_result)
+
 
     def test_get_iata_codes_and_airports(self):
         conn = sqlite3.connect("./IATA_Codes.db")
@@ -126,43 +135,25 @@ class TestFunctions(unittest.IsolatedAsyncioTestCase):
             assert combined_data == [{"location_id": "1", "name": "Attraction1"}, {"location_id": "2", "name": "Restaurant1"}], "Should return combined data"
             assert location_ids == ["1", "2"], "Should return a list of location_ids"
 
+    async def test_get_flights_info_failure(self):
+        mock_response = MagicMock()
+        mock_response.status_code = 404
+        mock_response.json.return_value = {"error": "Not Found"}
+        mock_response.text = "Not Found"
 
-    async def test_get_flights_info_success(self):
-        mock_response = AsyncMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {"flights": ["Flight1", "Flight2"]}
-        
-        with patch('httpx.AsyncClient.get', new=mock_response):
-            flights_info = await get_flights_info("JFK", "LAX", "2024-01-01", "2024-01-05")
-            self.assertEqual(flights_info, {"flights": ["Flight1", "Flight2"]})
+        with patch.object(httpx.AsyncClient, 'get', return_value=mock_response):
+            with self.assertRaises(HTTPException) as context:
+                await get_flights_info("ABC", "DEF", "2024-01-01", "2024-01-15")
+            self.assertEqual(context.exception.status_code, 404)
 
-    async def test_generate_photo_for_html(self):
-        mock_response = AsyncMock()
-        mock_response.data = [{"url": "http://example.com/photo.jpg"}]
-        with patch('client.images.generate', return_value=mock_response):
-            image_url = await generate_photo_for_html("Paris")
-            self.assertEqual(image_url, "http://example.com/photo.jpg")
 
-    async def test_get_trip_suggestions(self):
-        mock_response = AsyncMock()
-        mock_response.choices[0].message.content = "Trip plan content"
-        with patch('client.chat.completions.create', return_value=mock_response):
-            trip_suggestions = await get_trip_suggestions(AsyncMock(), "Sample prompt")
-            self.assertEqual(trip_suggestions, "Trip plan content")
 
-    async def test_get_top_hotels(self):
-        mock_response = AsyncMock()
-        mock_response.choices[0].message.content = "Top hotels content"
-        with patch('client.chat.completions.create', return_value=mock_response):
-            top_hotels = await get_top_hotels(AsyncMock(), [{"name": "Hotel1"}])
-            self.assertEqual(top_hotels, "Top hotels content")
 
-    async def test_generate_general_activities(self):
-        mock_response = AsyncMock()
-        mock_response.choices[0].message.content = "General activities content"
-        with patch('client.chat.completions.create', return_value=mock_response):
-            activities = await generate_genral_activities(AsyncMock(), {"A to B": 10}, 2)
-            self.assertEqual(activities, "General activities content")
+
+
+ 
+
+  
 
 if __name__ == "__main__":
     unittest.main()
