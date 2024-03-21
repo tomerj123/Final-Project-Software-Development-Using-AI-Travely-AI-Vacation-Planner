@@ -429,6 +429,10 @@ async def select_airports(
 
     return response
 
+@app.get("/CI-check")
+async def check():
+    return {"message": "CI Working"}
+
 
 @app.post("/plan-trip/", response_class=HTMLResponse)
 async def get_trip_plan(trip: TripDescription):
