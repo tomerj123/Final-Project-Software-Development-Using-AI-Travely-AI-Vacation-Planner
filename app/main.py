@@ -74,13 +74,13 @@ async def get_trip_suggestions(client, prompt):
                                     "- Incorporates free time for shopping and exploration."
                                     "- Include addresses and websites of attractions"
                                     "4. Ensure all recommendations are presented in a way that will be visually appealing on a webpage, using HTML formatting where appropriate (e.g., <b> for bold)."
-                                    "5. do not write me any instructions on how to put the trip plan in the html, just provide the plan itself."
+                                    "5. do not write me any instructions on how to put the trip plan in the html, just provide the plan like i instructed."
 
-                                    "Summarize the trip plan, ensuring it is well-organized and includes all relevant details."
+                                    "ensure it is well-organized and includes all relevant details."
             }
         ],
         model="gpt-4-0125-preview",
-        temperature=0.4,
+        temperature=0.5,
         # model="gpt-3.5-turbo",
     )
     return chat_completion.choices[0].message.content
@@ -185,7 +185,7 @@ async def get_activities_info(destination):
     # URLs for attractions and restaurants
     urls = [
         f"https://api.content.tripadvisor.com/api/v1/location/search?key={key}&searchQuery={destination}&category=attractions&language=en",
-        f"https://api.content.tripadvisor.com/api/v1/location/search?key={key}&searchQuery={destination}&category=restaurants&language=en"
+        f"https://api.content.tripadvisor.com/api/v1/location/search?key={key}&searchQuery=restaurants%20in%20{destination}&category=restaurants&language=en"
     ]
 
     async with httpx.AsyncClient() as client:
@@ -250,6 +250,8 @@ def format_trip_plan(plan_text):
     # Correcting double <a> tags if present
     double_a_tag_pattern = r'<a href=\'<a href="([^"]+)" style="color:black;">[^<]+</a>\' style="color:black;">[^<]+</a>'
     plan_text = re.sub(double_a_tag_pattern, r'<a href="\1" style="color:black;">\1</a>', plan_text)
+
+    plan_text = plan_text.replace("```html", "")
 
     return plan_text
 
@@ -382,6 +384,7 @@ origins = [
     "http://backend:8000"
     "backend:8000"
     "tomerandsionefinalproject.eastus.azurecontainer.io"
+    "postman"
     #app domain on azure
 ]
 
@@ -401,10 +404,6 @@ app.add_middleware(
 @app.get("/")
 async def root():
     return RedirectResponse(url="/docs")
-
-@app.get("/CI-check")
-async def check():
-    return {"message": "CI Working"}
 
 @app.get("/search-for-your-preferred-airports/")
 async def select_airports(
@@ -439,7 +438,7 @@ async def select_airports(
 
 @app.post("/plan-trip/", response_class=HTMLResponse)
 async def get_trip_plan(trip: TripDescription):
-    print(trip.model_dump())
+    #print(trip.model_dump())
     data = await gather_data(trip)
     # Configure the logging system
     logging.info(data)
@@ -509,7 +508,10 @@ async def get_trip_plan(trip: TripDescription):
                 padding: 30px;
                 margin-top: 20px;
             }}
-        </style>
+            a {{
+                color: black;
+            }}
+    </style>
     </head>
     <body>
     <div class="header">

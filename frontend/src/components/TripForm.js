@@ -117,6 +117,7 @@ const handleSubmit = async (e) => {
     };
 
     try {
+        //localhost:8000/plan-trip/ http://tomerandsionefinalproject.eastus.azurecontainer.io/plan-trip/
         const response = await fetch('http://tomerandsionefinalproject.eastus.azurecontainer.io/plan-trip/', {
             method: 'POST',
             headers: {

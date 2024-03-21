@@ -11,6 +11,7 @@ const IATACodes = () => {
   const fetchIATACodes = async (event) => {
     event.preventDefault(); // Prevent the default form submit behavior
     try {
+      // localhost:8000/ tomerandsionefinalproject.eastus.azurecontainer.io
       const response = await fetch(`http://tomerandsionefinalproject.eastus.azurecontainer.io/search-for-your-preferred-airports/?origin_city=${originCity}&destination_city=${destinationCity}`);
       if (!response.ok) throw new Error('Network response was not ok');
 
