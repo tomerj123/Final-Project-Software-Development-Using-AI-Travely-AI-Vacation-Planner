@@ -38,10 +38,6 @@ client = OpenAI(
 )
 
 
-
-
-
-
 ### functions that uses openai API: ###
 # generate photo for the trip html page
 async def generate_photo_for_html(destination):
@@ -162,8 +158,6 @@ async def get_hotel_info(destination, check_in_date, check_out_date, people_num)
         "api_key": os.environ.get("SERPAPI_API_KEY")
     }
 
-
-
     async with httpx.AsyncClient() as client:
         response = await client.get("https://serpapi.com/search?engine=google_hotels", params=serpapi_params)
 
@@ -177,7 +171,7 @@ async def get_hotel_info(destination, check_in_date, check_out_date, people_num)
 
 ### functions that uses tripadvisor API: ###
 async def get_activities_info(destination):
-    key ="7D8FF18728F342E29B426D6D5946FA6C"
+    key = os.environ.get("TRIPADVISOR_API_KEY")
     headers = {"accept": "application/json"}
     combined_data = []
     location_ids = []
@@ -322,7 +316,7 @@ async def gather_data(trip: TripDescription):
         hotels_info = await get_hotel_info(trip.destination, trip.start_date, trip.end_date, trip.num_of_people)
         top_hotels = await get_top_hotels(client, hotels_info)
         activities_info, activities_location_ids = await get_activities_info(trip.destination)
-        
+
         activities_details = []
         for location_id in activities_location_ids:
             activity_details = await get_location_details(location_id)
@@ -357,7 +351,7 @@ async def gather_data(trip: TripDescription):
 
 
 async def calculate_distances(activities):
-    distances = {}
+    distances = []
     for i in range(len(activities)):
         for j in range(i + 1, len(activities)):
             try:
@@ -367,9 +361,11 @@ async def calculate_distances(activities):
                 distance = haversine(loc1, loc2)
                 # Create a readable key for the distance
                 key = f"{activities[i]['name']} to {activities[j]['name']}"
-                distances[key] = distance
+                distances.append((key, distance))
             except Exception as e:
                 print(f"Error calculating distance between {activities[i]['name']} and {activities[j]['name']}: {e}")
+    # Sort distances by the second item in each tuple (the distance)
+    distances.sort(key=lambda x: x[1])
     return distances
 
 
@@ -385,7 +381,7 @@ origins = [
     "backend:8000"
     "tomerandsionefinalproject.eastus.azurecontainer.io"
     "postman"
-    #app domain on azure
+    # app domain on azure
 ]
 
 app.add_middleware(
@@ -397,13 +393,11 @@ app.add_middleware(
 )
 
 
-# Mount the React build directory as a static files directory
-#app.mount("/frontend", StaticFiles(directory="frontend/build"), name="frontend")
-
 # You might also want to redirect the root URL to the frontend
 @app.get("/")
 async def root():
     return RedirectResponse(url="/docs")
+
 
 @app.get("/search-for-your-preferred-airports/")
 async def select_airports(
@@ -438,13 +432,12 @@ async def select_airports(
 
 @app.post("/plan-trip/", response_class=HTMLResponse)
 async def get_trip_plan(trip: TripDescription):
-    #print(trip.model_dump())
+    # print(trip.model_dump())
     data = await gather_data(trip)
-    # Configure the logging system
-    logging.info(data)
     trip_plan = await get_trip_suggestions(client, data)  # convert the trip plan to string
     trip_plan = format_trip_plan(trip_plan)
     trip_plan_html = trip_plan.replace("\n", "<br>")
+    logging.info(f"Trip plan for {trip.destination} was created successfully")
 
     # Insert trip_plan string into the HTML content
     html_content = f"""
@@ -571,7 +564,7 @@ async def get_trip_plan(trip: TripDescription):
     </body>
     </html>
     """
-
+    logging.info(html_content)
     # Generate a temporary file to store the HTML content
     with tempfile.NamedTemporaryFile(delete=False, suffix='.html') as file:
         file.write(html_content.encode('utf-8'))

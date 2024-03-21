@@ -31,7 +31,7 @@ class TestFunctions(unittest.IsolatedAsyncioTestCase):
             {"name": "C", "location": (2, 2)},
         ]
         result = await calculate_distances(activities)
-        self.assertEqual(result, {'A to B': 157.2495984740402, 'A to C': 314.47523947196964, 'B to C': 157.22564920708905}
+        self.assertEqual(result, [('B to C', 157.22564920708905), ('A to B', 157.2495984740402), ('A to C', 314.47523947196964)]
 )
 
     async def test_get_location_details(self):
@@ -87,10 +87,13 @@ class TestFunctions(unittest.IsolatedAsyncioTestCase):
                 "rate_per_night": {"lowest": "$100"},
                 "total_rate": {"lowest": "$500"},
                 "nearby_places": [{"name": "Park"}, {"name": "Restaurant"}],
+                "not needed": "value",
+                "not_needed2": "value2",
             }
         ]
         extracted_data = extract_hotel_data(hotels_data)
-        self.assertEqual(extracted_data[0]["Name"], "Hotel A")
+        with self.assertRaises(KeyError):
+            _ = extracted_data[0]["not needed"]
 
     def test_format_hotels_for_prompt(self):
         hotels_data = [
@@ -147,13 +150,6 @@ class TestFunctions(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(context.exception.status_code, 404)
 
 
-
-
-
-
- 
-
-  
 
 if __name__ == "__main__":
     unittest.main()
